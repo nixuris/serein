@@ -1,0 +1,9 @@
+@import "~/.config/rofi/config.rasi"
+entry { enabled: false; }
+inputbar {
+  spacing: 10px;
+  padding: 130px 60px;
+  background-color: transparent;
+}
+textbox-prompt-colon { enabled: false; }
+listview { columns: 1; lines: 8; }

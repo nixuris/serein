@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+function get_brightness {
+    brightnessctl info | grep -oP '\([0-9]+%\)' | tr -d '()' | tr -d '%'
+}
+
+function send_notification {
+    brightness=$(get_brightness)
+    brightness=${brightness:-0}  # Default to 0 if empty
+    $(dirname "$0")/notify_send "Brightness $brightness%" -t 2000 -h int:value:"$brightness" -h string:x-canonical-private-synchronous:brightness_notif --replace=666
+}
+
+case $1 in
+    up)
+        brightnessctl set +5%
+        send_notification
+        ;;
+
+    down)
+        brightnessctl set 5%-
+        send_notification
+        ;;
+esac 

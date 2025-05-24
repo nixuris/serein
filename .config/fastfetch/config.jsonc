@@ -1,0 +1,87 @@
+{
+  "display": {
+    "separator": " "
+  },
+  "logo": {
+    "padding": {
+      "right": 6,
+      "top": 2
+    },
+    "source": "~/.config/fastfetch/2b.txt"
+  },
+  "modules": [
+    "break",
+    "break",
+    {
+      "keyWidth": 10,
+      "type": "title"
+    },
+    "break",
+    {
+      "key": " ",
+      "keyColor": "33",
+      "type": "os"
+    },
+    {
+      "key": " ├  ",
+      "keyColor": "33",
+      "type": "uptime"
+    },
+    {
+      "key": " ├  ",
+      "keyColor": "33",
+      "type": "kernel"
+    },
+    {
+      "key": " ├  ",
+      "keyColor": "33",
+      "type": "memory"
+    },
+    {
+      "key": " ├ 󰋊 ",
+      "keyColor": "33",
+      "type": "disk"
+    },
+    {
+      "format": "{1} ({3}) @ {7} GHz",
+      "key": " ├  ",
+      "keyColor": "33",
+      "type": "cpu"
+    },
+    {
+      "format": "{1} {2} @ {12} GHz",
+      "key": " ├ 󰢮 ",
+      "keyColor": "33",
+      "type": "gpu"
+    },
+    {
+      "key": " ",
+      "keyColor": "33",
+      "type": "packages"
+    },
+    {
+      "key": " ├  ",
+      "keyColor": "33",
+      "type": "shell"
+    },
+    {
+      "key": " ├  ",
+      "keyColor": "33",
+      "type": "terminal"
+    },
+    {
+      "key": " ├  ",
+      "keyColor": "33",
+      "type": "wm"
+    },
+    "break",
+    {
+      "key": "󰝚 ",
+      "keyColor": "33",
+      "type": "media"
+    },
+    "break",
+    "break"
+  ]
+}
+

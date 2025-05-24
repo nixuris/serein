@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+#This script requires imagemagick, please add it via systempkgs
+set -euo pipefail  # Exit on error, undefined vars, and pipe failures
+
+# Set some variables
+WALL_DIR="${HOME}/hyprnix/modules/home/Nord/pics/"
+CACHE_DIR="${HOME}/.cache/rofi_icons/"
+TRACKING_FILE="$HOME/hyprnix/modules/home/Nord/pics/wallpaper_tracking.txt"
+
+# Cleanup function to handle script interruption
+cleanup() {
+  echo "Wallpaper selection cancelled."
+  exit 0
+}
+
+# Set trap to handle interruptions
+trap cleanup SIGINT SIGTERM
+
+# Verify required tools exist
+command -v magick >/dev/null 2>&1 || { echo "Error: imagemagick required but not installed."; exit 1; }
+command -v swww >/dev/null 2>&1 || { echo "Error: swww required but not installed."; exit 1; }
+command -v rofi >/dev/null 2>&1 || { echo "Error: rofi required but not installed."; exit 1; }
+
+# Calculate monitor resolution and icon size
+monitor_res=$(hyprctl monitors | grep -A2 Monitor | head -n 2 | awk '{print $1}' | grep -oE '^[0-9]+')
+icon_size=$(echo "scale=0; $monitor_res * 24 / $(echo "scale=2; $monitor_res / 24" | bc | xargs printf "%.0f") / 2" | bc)
+
+# Set rofi command with x11 flag
+ROFI_EXECUTE="rofi -x11 -dmenu -theme ${HOME}/.config/rofi/wallselect.rasi -theme-str 'element-icon{size:${icon_size}px;border-radius:0px;} window{width:80%;height:75%;} listview{lines:4;columns:4;}'"
+
+# Create cache dir if not exists
+mkdir -p "${CACHE_DIR}"
+
+# Count number of wallpapers
+wallpaper_count=$(find "${WALL_DIR}" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" \) | wc -l)
+if [ "$wallpaper_count" -eq 0 ]; then
+  echo "No wallpapers found in ${WALL_DIR}"
+  exit 1
+fi
+
+echo "Preparing ${wallpaper_count} wallpapers..."
+
+# Convert images in directory and save to cache dir (with a simple counter)
+converted=0
+for imagen in "$WALL_DIR"/*.{jpg,jpeg,png,webp}; do
+  [ -f "$imagen" ] || continue
+  nombre_archivo=$(basename "$imagen")
+  if [ ! -f "${CACHE_DIR}/${nombre_archivo}" ]; then
+    magick "$imagen" -resize 300x300^ -gravity center -extent 300x300 "${CACHE_DIR}/${nombre_archivo}"
+    ((converted++))
+  fi
+done
+[ $converted -gt 0 ] && echo "Created $converted new thumbnail(s)."
+
+# Launch rofi and select wallpaper
+SELECTION=$(find "${WALL_DIR}" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" \) -exec basename {} \; | sort | \
+  while read -r A; do echo -en "$A\x00icon\x1f""${CACHE_DIR}"/"$A\n"; done | eval $ROFI_EXECUTE -i)
+
+[ -z "$SELECTION" ] && { echo "No selection made in Rofi."; exit 1; }
+
+# Get basename directly 
+BASENAME=$(basename "$SELECTION")
+echo "Setting wallpaper: $BASENAME"
+
+# Set wallpaper
+swww query >/dev/null 2>&1 || swww init
+swww img "${WALL_DIR}${BASENAME}" --transition-bezier .43,1.19,1,.4 --transition-fps 144 --transition-type grow --transition-duration 2 --transition-pos 0.680,0.970
+
+# Save the current wallpaper name
+echo "$BASENAME" > "$TRACKING_FILE"
+
+# Update config files with the new wallpaper
+sed -i "s#background-image:.*#background-image: url(\"${WALL_DIR}${BASENAME}\",width);#" "$HOME/.config/rofi/themes/menu.rasi"
+echo "Wallpaper set successfully!"

@@ -1,0 +1,7 @@
+@theme "~/.config/rofi/themes/menu.rasi"
+
+configuration {
+  hover-select:    true;
+  me-select-entry: "";
+  me-accept-entry: [ MousePrimary, MouseSecondary, MouseDPrimary ];
+}

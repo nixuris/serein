@@ -1,0 +1,389 @@
+[
+  {
+    "battery": {
+      "format": "{icon} {capacity}%",
+      "format-alt": "{time} {icon}",
+      "format-charging": " {capacity}%",
+      "format-icons": [
+        "󰂎",
+        "󰁺",
+        "󰁻",
+        "󰁼",
+        "󰁽",
+        "󰁾",
+        "󰁿",
+        "󰂀",
+        "󰂁"
+      ],
+      "format-plugged": " {capacity}%",
+      "rotate": 0,
+      "states": {
+        "critical": 20,
+        "good": 95,
+        "warning": 30
+      }
+    },
+    "bluetooth": {
+      "format": "",
+      "format-connected": "󰂱",
+      "format-disabled": "󰂲",
+      "format-icons": [
+        "󰥇",
+        "󰤾",
+        "󰤿",
+        "󰥀",
+        "󰥁",
+        "󰥂",
+        "󰥃",
+        "󰥄",
+        "󰥅",
+        "󰥆",
+        "󰥈"
+      ],
+      "rotate": 0,
+      "tooltip-format": "{controller_alias}\n{num_connections} connected",
+      "tooltip-format-connected": "{device_enumerate}"
+    },
+    "custom/cava": {
+      "exec": "~/.config/hypr/scripts/cava",
+      "format": "{}"
+    },
+    "custom/l_end": {
+      "format": " ",
+      "interval": "once",
+      "tooltip": false
+    },
+    "custom/padd": {
+      "format": " ",
+      "interval": "once",
+      "tooltip": false
+    },
+    "custom/r_end": {
+      "format": " ",
+      "interval": "once",
+      "tooltip": false
+    },
+    "custom/rl_end": {
+      "format": " ",
+      "interval": "once",
+      "tooltip": false
+    },
+    "custom/rr_end": {
+      "format": " ",
+      "interval": "once",
+      "tooltip": false
+    },
+    "custom/sl_end": {
+      "format": " ",
+      "interval": "once",
+      "tooltip": false
+    },
+    "custom/sr_end": {
+      "format": " ",
+      "interval": "once",
+      "tooltip": false
+    },
+    "exclusive": true,
+    "gtk-layer-shell": true,
+    "height": 43,
+    "layer": "top",
+    "margin-bottom": 10,
+    "modules-center": [
+      "custom/padd",
+      "custom/l_end",
+      "custom/cava",
+      "custom/r_end",
+      "custom/padd"
+    ],
+    "modules-left": [
+      "custom/padd",
+      "custom/l_end",
+      "mpris",
+      "custom/r_end",
+      "custom/padd"
+    ],
+    "modules-right": [
+      "custom/padd",
+      "custom/l_end",
+      "tray",
+      "custom/r_end",
+      "custom/l_end",
+      "network",
+      "custom/r_end",
+      "custom/l_end",
+      "battery",
+      "custom/r_end",
+      "custom/padd"
+    ],
+    "mpris": {
+      "interval": 1,
+      "max-length": 80
+    },
+    "network": {
+      "format-alt": " ",
+      "format-disconnected": "󰖪 ",
+      "format-ethernet": "󰈀 ",
+      "format-linked": "󰈀 {ifname} (No IP)",
+      "format-wifi": "<span foreground='#86afef'>  {essid}:  {bandwidthDownBytes}</span> <span foreground='#86afef'> {bandwidthUpBytes}</span>",
+      "interval": 2,
+      "rotate": 0,
+      "tooltip": true,
+      "tooltip-format": "Network: <big><b>{essid}</b></big>\nSignal: <b>{signalStrength}%</b>\nIP: <b>{ipaddr}/{cidr}</b>"
+    },
+    "output": [
+      "eDP-1"
+    ],
+    "passthrough": false,
+    "position": "bottom",
+    "reload_style_on_change": true,
+    "tray": {
+      "icon-size": 18,
+      "rotate": 0,
+      "spacing": 5
+    },
+    "width": 1900
+  },
+  {
+    "backlight": {
+      "device": "intel_backlight",
+      "format": "{icon} {percent}%",
+      "format-icons": [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "min-length": 6,
+      "on-scroll-down": "brightnessctl set 1%-",
+      "on-scroll-up": "brightnessctl set 1%+",
+      "rotate": 0
+    },
+    "clock": {
+      "actions": {
+        "on-click-backward": "tz_down",
+        "on-click-forward": "tz_up",
+        "on-click-right": "mode",
+        "on-scroll-down": "shift_down",
+        "on-scroll-up": "shift_up"
+      },
+      "calendar": {
+        "format": {
+          "months": "<b>{}</b>",
+          "today": "<b>{}</b>",
+          "weekdays": "<b>{}</b>"
+        },
+        "mode": "month",
+        "mode-mon-col": 3,
+        "on-click-right": "mode",
+        "on-scroll": 1
+      },
+      "format": "{:%a %d %H:%M:%S}",
+      "format-alt": "{:%R %d·%m·%y}",
+      "interval": 1,
+      "rotate": 0,
+      "tooltip-format": "<tt>{calendar}</tt>"
+    },
+    "cpu": {
+      "format": "󰍛 {usage}%",
+      "format-alt": "{icon0}{icon1}{icon2}{icon3}",
+      "format-icons": [
+        "▁",
+        "▂",
+        "▃",
+        "▄",
+        "▅",
+        "▆",
+        "▇",
+        "█"
+      ],
+      "interval": 1,
+      "rotate": 0
+    },
+    "custom/l_end": {
+      "format": " ",
+      "interval": "once",
+      "tooltip": false
+    },
+    "custom/logo": {
+      "format": " ",
+      "on-click": "exec rofi -show drun"
+    },
+    "custom/padd": {
+      "format": " ",
+      "interval": "once",
+      "tooltip": false
+    },
+    "custom/power": {
+      "format": " ⏻ ",
+      "on-click": "exec ~/.config/hypr/scripts/session",
+      "tooltip": false
+    },
+    "custom/r_end": {
+      "format": " ",
+      "interval": "once",
+      "tooltip": false
+    },
+    "custom/swaync": {
+      "escape": true,
+      "exec": "swaync-client -swb",
+      "exec-if": "which swaync-client",
+      "format": "{icon}",
+      "format-icons": {
+        "dnd-inhibited-none": "󱏧",
+        "dnd-inhibited-notification": "<span foreground='red'><sup></sup></span>",
+        "dnd-none": "󱏧",
+        "dnd-notification": "󱏧<span foreground='red'><sup></sup></span>",
+        "inhibited-none": "󰂚",
+        "inhibited-notification": "󰂚<span foreground='red'><sup></sup></span>",
+        "none": "󰂚",
+        "notification": "󱅫"
+      },
+      "on-click": "swaync-client -t -sw",
+      "on-click-right": "swaync-client -d -sw",
+      "return-type": "json",
+      "tooltip": false
+    },
+    "exclusive": true,
+    "gtk-layer-shell": true,
+    "height": 43,
+    "hyprland/window": {
+      "format": "{}",
+      "icon": true,
+      "icon-size": 18,
+      "max-length": 70,
+      "separate-outputs": true
+    },
+    "hyprland/workspaces": {
+      "active-only": false,
+      "all-outputs": true,
+      "disable-scroll": true,
+      "format": "{icon}",
+      "format-icons": {
+        "active": "󱨇",
+        "default": ""
+      },
+      "on-click": "activate",
+      "persistent-workspaces": {
+        "*": 3
+      },
+      "rotate": 0
+    },
+    "idle_inhibitor": {
+      "format": "{icon}",
+      "format-icons": {
+        "activated": "󰥔",
+        "deactivated": ""
+      },
+      "rotate": 0
+    },
+    "layer": "top",
+    "margin-top": 10,
+    "memory": {
+      "format": "󰾆 {used}GB",
+      "format-alt": "󰾆 {percentage}%",
+      "format-c": " {used}GB",
+      "format-h": "󰓅 {used}GB",
+      "format-m": "󰾅 {used}GB",
+      "interval": 1,
+      "max-length": 10,
+      "rotate": 0,
+      "states": {
+        "c": 90,
+        "h": 60,
+        "m": 30
+      },
+      "tooltip": true,
+      "tooltip-format": "󰾆 {percentage}%\n {used:0.1f}GB/{total:0.1f}GB"
+    },
+    "mod": "dock",
+    "modules-center": [
+      "custom/padd",
+      "custom/l_end",
+      "idle_inhibitor",
+      "clock",
+      "custom/r_end",
+      "custom/l_end",
+      "custom/swaync",
+      "custom/r_end",
+      "custom/padd"
+    ],
+    "modules-left": [
+      "custom/padd",
+      "custom/padd",
+      "custom/logo",
+      "custom/padd",
+      "custom/l_end",
+      "hyprland/workspaces",
+      "custom/r_end",
+      "custom/l_end",
+      "hyprland/window",
+      "custom/r_end",
+      "custom/padd"
+    ],
+    "modules-right": [
+      "custom/padd",
+      "custom/l_end",
+      "pulseaudio",
+      "pulseaudio#microphone",
+      "backlight",
+      "custom/r_end",
+      "custom/l_end",
+      "cpu",
+      "temperature",
+      "memory",
+      "custom/r_end",
+      "custom/l_end",
+      "custom/power",
+      "custom/r_end",
+      "custom/padd"
+    ],
+    "output": [
+      "eDP-1"
+    ],
+    "passthrough": false,
+    "position": "top",
+    "pulseaudio": {
+      "format": "{icon} {volume}%",
+      "format-icons": {
+        "default": [
+          "",
+          "",
+          ""
+        ],
+        "headphone": ""
+      },
+      "format-muted": "󰖁",
+      "on-click": "pavucontrol -t 3",
+      "rotate": 0,
+      "scroll-step": 5,
+      "tooltip-format": "{icon} {desc} // {volume}%"
+    },
+    "pulseaudio#microphone": {
+      "format": "{format_source}",
+      "format-source": " {volume}%",
+      "format-source-muted": "",
+      "on-click": "pavucontrol -t 4",
+      "rotate": 0,
+      "scroll-step": 5,
+      "tooltip-format": "{format_source} {source_volume}%"
+    },
+    "reload_style_on_change": true,
+    "temperature": {
+      "critical-threshold": 82,
+      "format": "{icon} {temperatureC}°C",
+      "format-critical": "{temperatureC}°C {icon}",
+      "format-icons": [
+        "󰈸"
+      ],
+      "hwmon-path": [
+        "/sys/class/hwmon/hwmon4/temp1_input",
+        "/sys/class/thermal/thermal_zone5/temp"
+      ],
+      "interval": 1,
+      "tooltip": true
+    },
+    "width": 1900
+  }
+]
+

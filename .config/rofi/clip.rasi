@@ -1,0 +1,9 @@
+@import "~/.config/rofi/config.rasi"
+entry {
+  width: 30%;
+  placeholder: "                          Search Messages";
+}
+listview {
+  columns: 2;
+  lines: 8;
+}

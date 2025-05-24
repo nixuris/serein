@@ -1,0 +1,63 @@
+{
+  "control-center-margin-bottom": 2,
+  "control-center-margin-left": 10,
+  "control-center-margin-right": 10,
+  "control-center-margin-top": 10,
+  "control-center-width": 425,
+  "fit-to-screen": true,
+  "hide-on-action": true,
+  "hide-on-clear": false,
+  "image-visibility": "when-available",
+  "keyboard-shortcuts": true,
+  "notification-body-image-height": 100,
+  "notification-body-image-width": 200,
+  "notification-icon-size": 48,
+  "notification-window-width": 400,
+  "positionX": "center",
+  "positionY": "top",
+  "script-fail-notify": true,
+  "timeout": 5,
+  "timeout-critical": 20,
+  "timeout-low": 5,
+  "widget-config": {
+    "backlight": {
+      "device": "nvidia_wmi_ec_backlight",
+      "label": "⛭ ",
+      "min": 10
+    },
+    "backlight#KB": {
+      "device": "asus::kbd_backlight",
+      "label": " ",
+      "subsystem": "leds"
+    },
+    "dnd": {
+      "text": "Do Not Disturb"
+    },
+    "label": {
+      "max-lines": 1,
+      "text": "Notification Center"
+    },
+    "mpris": {
+      "image-radius": 6,
+      "image-size": 96
+    },
+    "title": {
+      "button-text": "Clear All",
+      "clear-all-button": true,
+      "text": "󰂚 Notifications"
+    },
+    "volume": {
+      "label": "  "
+    }
+  },
+  "widgets": [
+    "label",
+    "mpris",
+    "volume",
+    "backlight",
+    "title",
+    "dnd",
+    "notifications"
+  ]
+}
+

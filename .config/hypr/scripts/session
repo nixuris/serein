@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+chosen=$(sed '1,/^# # DATA # #$/d' $0 | 
+rofi -i -dmenu -config ~/.config/rofi/session.rasi |
+cut -d ' ' -f 1)
+
+case "$chosen" in
+	"Shutdown") shutdown -P now ;;
+	"Reboot") shutdown -r now ;;
+	"Logout") hyprctl dispatch exit ;;
+	"Lock") swaylock ;;
+esac
+
+exit
+# # DATA # #
+Lock                        Lock the screen 
+Shutdown                    Power off the system
+Reboot                      Restart the system
+Logout                      Exit current session

@@ -1,0 +1,50 @@
+[colors.bright]
+black = "#7b7b7b"
+blue = "#b5dcfe"
+cyan = "#dfdffd"
+green = "#ceffab"
+magenta = "#fb9bfe"
+red = "#fcb6af"
+white = "#fefffe"
+yellow = "#fffecc"
+
+[colors.cursor]
+cursor = "#7f7f7f"
+text = "#000000"
+
+[colors.normal]
+black = "#4f4f4f"
+blue = "#6b82ba"
+cyan = "#6383aa"
+green = "#a8fe60"
+magenta = "#6383cf"
+red = "#fa6c5f"
+white = "#eeedee"
+yellow = "#586eae"
+
+[colors.primary]
+background = "#1b1e25"
+foreground = "#eeedee"
+
+[colors.selection]
+background = "#b4d5ff"
+text = "#000000"
+
+[font]
+size = 13.0
+[font.normal]
+family = "JetBrains Mono Nerd Font"
+style = "SemiBold"
+
+[terminal.shell]
+args = ["-c", "fish"]
+program = "bash"
+
+[window]
+decorations = "full"
+opacity = 0.8
+
+[window.padding]
+x = 15
+y = 15
+
