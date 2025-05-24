@@ -1,4 +1,5 @@
 if status is-interactive
+    ~/.config/hypr/scripts/sttt scanline --scanline-reverse true -d 0.5
     fastfetch
     export EDITOR="nvim"
     export VISUAL="nvim"
