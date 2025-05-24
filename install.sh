@@ -31,7 +31,7 @@ chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.config"
 echo "Installing Hyprland and related packages..."
 paru -S --noconfirm --needed \
   swww swaylock grim slurp swappy wl-clipboard cliphist ueberzugpp libnotify yad playerctl swaync alacritty \
-  waybar hyprland rofi-wayland imagemagick xdg-desktop-portal-hyprland xdg-desktop-portal-gtk jq bc 
+  waybar hyprland rofi-wayland imagemagick xdg-desktop-portal-hyprland xdg-desktop-portal-gtk jq bc cava 
 
 echo "Your Hyprland environment should be good to go."
 
