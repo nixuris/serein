@@ -1,5 +1,0 @@
-/**
- * GTK 4 reads the theme configured by gtk-theme-name, but ignores it.
- * It does however respect user CSS, so import the theme from here.
-**/
-@import url("file:///nix/store/3bb509w701a930rh22p842i5lbdk7mkl-catppuccin-gtk-1.0.3/share/themes/catppuccin-frappe-blue-standard/gtk-4.0/gtk.css");
