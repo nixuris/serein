@@ -6,9 +6,9 @@ if status is-interactive
     fish_add_path .local/bin
     fish_add_path .cargo/bin
 
-    alias xs="sudo pacman -S"
-    alias xr="sudo pacman -Rns"
-    alias xu="sudo pacman -Syu"
+    alias xs="paru -S"
+    alias xr="paru -Rns"
+    alias xu="paru"
 
 
     alias e="nvim"
