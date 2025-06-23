@@ -97,39 +97,14 @@ tooltip label {
     transition: all 0.3s cubic-bezier(.55,-0.68,.48,1.682);
 }
 #temperature,
-#window,
-#custom-cava,
-#custom-power,
-#custom-swaync,
-#custom-logo,
 #backlight,
-#battery,
-#bluetooth,
-#custom-cliphist,
-#clock,
 #cpu,
-#idle_inhibitor,
-#custom-keybindhint,
-#language,
 #memory,
-#mpris,
-#network,
 #pulseaudio,
-#custom-spotify,
-#taskbar,
-#custom-theme,
-#tray,
-#custom-updates,
-#custom-wallchange,
-#custom-wbar,
 #window,
 #workspaces,
 #custom-l_end,
-#custom-r_end,
-#custom-sl_end,
-#custom-sr_end,
-#custom-rl_end,
-#custom-rr_end {
+#custom-r_end{
     color: #86afef;
     font-size: 14;
     background: #242830;
@@ -137,62 +112,59 @@ tooltip label {
     margin: 6px 0px 6px 0px;
     padding-left: 4px;
     padding-right: 4px;
-
 }
-
-/*#custom-logo {
-    color: #86afef;
-    background: #242830;
-    font-size: 20;
-    opacity: 1;
-    margin: 6px 0px 6px 0px;
-    padding-left: 4px;
-    padding-right: 4px;
-
-}*/
 
 #tray menu *{
   color: #86afef;
   background: #1b1e25;
 }
-
-
-#backlight,
+#custom-logo,
+#clock,
+#custom-power,
+#custom-swaync,
+#tray,
+#network,
+#bluetooth,
 #battery{
     color: #86afef;
+    font-size: 14;
+    background: #242830;
+    opacity: 1;
+    border: none;
+    border-radius: 6px;
+    margin-left: 5px;
+    margin-right: 5px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
+#backlight,
 #memory,
 #clock,
-#idle_inhibitor{
-    color: #86afef;
-}
-#custom-power{
-    padding-right: 8px;
-}
-#network,
+#idle_inhibitor,
 #blueooth,
 #pulseaudio,
 #cpu{
     color: #86afef;
 }
 
-#idle_inhibitor{
-    padding-right: 14px;
-}
-
 #custom-logo{
     color:#1b1e25;
     background: #86afef;
-    padding-right: 15px;
-    font-size: 20px;
-    padding-left: 15px;
-    border-radius: 5px;
-    margin-top: 7.5px;
-    margin-bottom: 7.5px;
+    font-size: 23;
+    padding-left: 4px;
+    padding-top: 5px;
+    padding-bottom: 5px;
 }
 
-#workspaces,
-#taskbar {
+#network{
+  font-size: 14;
+  padding-left: 5px;
+  padding-right: 5px;
+
+}
+#workspaces{
     padding: 0px;
 }
 
@@ -204,30 +176,6 @@ tooltip label {
 
 #custom-l_end {
     border-radius: 5px 0px 0px 5px;
-    margin-left: 8px;
-    padding-left: 0px;
-}
-
-#custom-sr_end {
-    border-radius: 0px;
-    margin-right: 8px;
-    padding-right: 0px;
-}
-
-#custom-sl_end {
-    border-radius: 0px;
-    margin-left: 8px;
-    padding-left: 0px;
-}
-
-#custom-rr_end {
-    border-radius: 0px 7px 7px 0px;
-    margin-right: 8px;
-    padding-right: 0px;
-}
-
-#custom-rl_end {
-    border-radius: 7px 0px 0px 7px;
     margin-left: 8px;
     padding-left: 0px;
 }
