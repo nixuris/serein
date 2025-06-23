@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 # Screenshots scripts
 
-iDIR="$HOME/.config/hypr/Scripts/"
-sDIR="$HOME/.config/hypr/Scripts"
-notify_cmd_shot="notify-send -h string:x-canonical-private-synchronous:shot-notify -u low -i ${iDIR}/picture.png"
+iDIR="$HOME/.config/hypr/scripts/"
+notify_cmd_shot="notify-send -h string:x-canonical-private-synchronous:shot-notify -u low"
 
 time=$(date "+%d-%b_%H-%M-%S")
 dir="$HOME/Pictures/Screenshots"
@@ -33,34 +32,10 @@ notify_view() {
     fi
 }
 
-
-
-# countdown
-countdown() {
-	for sec in $(seq $1 -1 1); do
-		notify-send -h string:x-canonical-private-synchronous:shot-notify -t 1000 -i "$iDIR"/timer.png "Taking shot in : $sec"
-		sleep 1
-	done
-}
-
 # take shots
 shotnow() {
 	cd ${dir} && grim - | tee "$file" | wl-copy
 	sleep 2
-	notify_view
-}
-
-shot5() {
-	countdown '5'
-	sleep 1 && cd ${dir} && grim - | tee "$file" | wl-copy
-	sleep 1
-	notify_view
-	
-}
-
-shot10() {
-	countdown '10'
-	sleep 1 && cd ${dir} && grim - | tee "$file" | wl-copy
 	notify_view
 }
 
@@ -106,10 +81,6 @@ fi
 if [[ "$1" == "--now" ]]; then
 	shotnow
 elif [[ "$1" == "--in5" ]]; then
-	shot5
-elif [[ "$1" == "--in10" ]]; then
-	shot10
-elif [[ "$1" == "--win" ]]; then
 	shotwin
 elif [[ "$1" == "--area" ]]; then
 	shotarea
