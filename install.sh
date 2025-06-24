@@ -11,7 +11,7 @@ read -p "Enter the username for config installation: " USERNAME
 # 3. Remove directories from the user's ~/.config
 #    (Only do this if they exist—just to avoid error messages)
 echo "Removing any existing configs in /home/$USERNAME/.config..."
-rm -rf "/home/$USERNAME/.config/fish" "/home/$USERNAME/.config/ranger" "/home/$USERNAME/.config/alacritty" "/home/$USERNAME/.config/cava" "/home/$USERNAME/.config/swaync" "/home/$USERNAME/.config/fastfetch" "/home/$USERNAME/.config/hypr" "/home/$USERNAME/.config/nvim" "/home/$USERNAME/.config/rofi" "/home/$USERNAME/.config/waybar" "/home/$USERNAME/.config/swaylock" "/home/$USERNAME/.config/swappy" 
+rm -rf "/home/$USERNAME/.config/fish" "/home/$USERNAME/.config/ranger" "/home/$USERNAME/.config/alacritty" "/home/$USERNAME/.config/cava" "/home/$USERNAME/.config/swaync" "/home/$USERNAME/.config/fastfetch" "/home/$USERNAME/.config/hypr" "/home/$USERNAME/.config/nvim" "/home/$USERNAME/.config/rofi" "/home/$USERNAME/.config/waybar" "/home/$USERNAME/.config/swaylock" "/home/$USERNAME/.config/swappy" "/home/$USERNAME/.config/foot" 
 # 4. Copy all contents from 'home/.config' (inside this repo) to the user's ~/.config
 #    Assuming we're already in the Hyprdots-arch directory that contains 'home/.config'
 echo "Copying new .config files to /home/$USERNAME/.config..."
