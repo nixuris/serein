@@ -20,7 +20,7 @@ cp -r .config/* "/home/$USERNAME/.config"
 
 # 5. Fix ownership of the copied configs so they're owned by the user
 chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.config"
-
+mkdir -p "/home/$USERNAME/.local/share/Trash/files"
 # 6. Install the required Hyprland packages
 echo "Installing Hyprland and related packages..."
 paru -S --noconfirm --needed \
