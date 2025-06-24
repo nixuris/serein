@@ -54,7 +54,8 @@
       "icon": true,
       "icon-size": 18,
       "max-length": 80,
-      "separate-outputs": true
+      "separate-outputs": true,
+      "rewrite": {"": "Hyprland"}
     },
     "hyprland/workspaces": {
       "active-only": false,
