@@ -28,9 +28,8 @@ paru -S --noconfirm --needed \
   waybar hyprland rofi-wayland imagemagick xdg-desktop-portal-hyprland xdg-desktop-portal-gtk jq bc cava \
   papirus-icon-theme catppuccin-gtk-theme-frappe nwg-look bibata-cursor-theme \
   ttf-jetbrains-mono-nerd noto-fonts noto-fonts-emoji noto-fonts-cjk cpio \
-echo "Enabling hyprland-plugins (required for overview)"
+echo "Enabling hyprtasking (required for overview)"
 hyprpm update
-hyprpm add https://github.com/hyprwm/hyprland-plugins
-hyprpm enable hyprexpo
+hyprpm add https://github.com/raybbian/hyprtasking
+hyprpm enable hyprtasking
 echo "Your Hyprland environment should be good to go."
-
