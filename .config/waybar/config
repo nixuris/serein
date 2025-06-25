@@ -156,8 +156,8 @@
         "󰈸"
       ],
       "hwmon-path": [
-        "/sys/class/hwmon/hwmon4/temp1_input",
-        "/sys/class/thermal/thermal_zone5/temp"
+        "/sys/class/hwmon/hwmon6/temp1_input",
+        "/sys/class/thermal/thermal_zone6/temp"
       ],
       "interval": 1,
       "tooltip": true
