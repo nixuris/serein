@@ -94,10 +94,10 @@ if [ "$INSTALL_TYPE" == "full" ]; then
 fi
 
 # --- Hyprland Plugin ---
-#echo "Enabling hyprtasking (required for overview)..."
-#hyprpm update
-#hyprpm add https://github.com/raybbian/hyprtasking
-#hyprpm enable hyprtasking
+echo "Enabling hyprtasking (required for overview)..."
+hyprpm update
+hyprpm add https://github.com/raybbian/hyprtasking
+hyprpm enable hyprtasking
 
 echo "Installation complete. Your Hyprland environment should be good to go."
 echo "Please reboot for all changes to take effect."
