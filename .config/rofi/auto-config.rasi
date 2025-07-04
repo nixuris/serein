@@ -1,9 +1,0 @@
-configuration {
-cycle: true;
-font: "JetBrains Mono Nerd Font 10";
-location: 0;
-terminal: "alacritty";
-xoffset: 0;
-yoffset: 0;
-}
-@theme "/home/nixuris/.config/rofi/themes/menu.rasi"
