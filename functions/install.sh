@@ -185,8 +185,8 @@ fi
 info "Installation complete!"
 echo ""
 info "--- Post-Installation Best Practices ---"
-echo " - Do NOT manually modify files in ~/.cache/serein. Use the configs in ~/.config/ to make changes."
-echo " - To remove rollback backups, use 'serein rollback remove <generation>' instead of 'rm -rf'."
+echo " - Do NOT manually modify files in ~/.cache/serein or serein's configs in ~/.config unless you selected One-Time installation."
+echo " - If you selected One-Time installation, to remove rollback backups, use 'serein rollback remove <generation>' instead of 'rm -rf'."
 echo ""
 
 read -rp "Reboot now to apply all changes? [Y/n]: " reboot_choice
