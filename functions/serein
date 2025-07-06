@@ -184,6 +184,7 @@ case "$1" in
             "$persistent_dir/functions/resymlink.sh" --unsymlink
             sudo rm /usr/local/bin/serein
             rm -rf "$persistent_dir"
+            rm "$HOME/monitors.conf"
             info "Serein has been uninstalled."
         else
             error "Serein is not installed persistently."
