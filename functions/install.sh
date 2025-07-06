@@ -45,7 +45,7 @@ if [[ "$1" != "--run-stage-2" ]]; then
         git clone https://github.com/nixuris/serein.git $clone_args "$persistent_dir" || error "Failed to clone repository."
         
         info "Re-executing installer from the persistent location..."
-        exec bash "$persistent_dir/install.sh" --run-stage-2 --persistent
+        exec bash "$persistent_dir/functions/install.sh" --run-stage-2 --persistent
     
     elif [[ "$install_mode" =~ ^[Oo]$ ]]; then
         # One-Time Installation
