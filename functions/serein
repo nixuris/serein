@@ -21,7 +21,6 @@ COMMANDS=(
     "rollback remove <gen>   Remove a specific generation"
     "enable overview         Enable the Hyprland overview plugin"
     "disable overview        Disable the Hyprland overview plugin"
-    "detect-nvidia           Automatically configure NVIDIA settings"
     "uninstall               Remove the Serein environment"
 )
 
@@ -171,26 +170,6 @@ case "$1" in
             info "Hyprtasking disabled."
         else
             usage
-        fi
-        ;;
-    detect-nvidia)
-        if ! command -v lspci &> /dev/null; then
-            error "lspci not found. Please install it to continue."
-        fi
-        if lspci | grep -i nvidia > /dev/null; then
-            info "NVIDIA GPU detected. Enabling NVIDIA settings..."
-            sed -i 's/#env = GBM_BACKEND,nvidia-drm/env = GBM_BACKEND,nvidia-drm/' $HOME/.config/hypr/hyprconfs/env.conf
-            sed -i 's/#env = LIBVA_DRIVER_NAME,nvidia/env = LIBVA_DRIVER_NAME,nvidia/' $HOME/.config/hypr/hyprconfs/env.conf
-            sed -i 's/#env = __GLX_VENDOR_LIBRARY_NAME,nvidia/env = __GLX_VENDOR_LIBRARY_NAME,nvidia/' $HOME/.config/hypr/hyprconfs/env.conf
-            sed -i 's/#env = ELECTRON_OZONE_PLATFORM_HINT,auto/env = ELECTRON_OZONE_PLATFORM_HINT,auto/' $HOME/.config/hypr/hyprconfs/env.conf
-            sed -i 's/#env = NVD_BACKEND,direct/env = NVD_BACKEND,direct/' $HOME/.config/hypr/hyprconfs/env.conf
-        else
-            info "No NVIDIA GPU detected. Disabling NVIDIA settings..."
-            sed -i 's/env = GBM_BACKEND,nvidia-drm/#env = GBM_BACKEND,nvidia-drm/' $HOME/.config/hypr/hyprconfs/env.conf
-            sed -i 's/env = LIBVA_DRIVER_NAME,nvidia/#env = LIBVA_DRIVER_NAME,nvidia/' $HOME/.config/hypr/hyprconfs/env.conf
-            sed -i 's/env = __GLX_VENDOR_LIBRARY_NAME,nvidia/#env = __GLX_VENDOR_LIBRARY_NAME,nvidia/' $HOME/.config/hypr/hyprconfs/env.conf
-            sed -i 's/env = ELECTRON_OZONE_PLATFORM_HINT,auto/#env = ELECTRON_OZONE_PLATFORM_HINT,auto/' $HOME/.config/hypr/hyprconfs/env.conf
-            sed -i 's/env = NVD_BACKEND,direct/#env = NVD_BACKEND,direct/' $HOME/.config/hypr/hyprconfs/env.conf
         fi
         ;;
     uninstall)

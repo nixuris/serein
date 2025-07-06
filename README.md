@@ -36,5 +36,4 @@ The `serein` command-line tool is the central hub for managing your Serein envir
 *   `rollback remove <gen>`: Removes a specific generation.
 *   `enable overview`: Enables the Hyprland overview plugin (hyprtasking).
 *   `disable overview`: Disables the Hyprland overview plugin.
-*   `detect-nvidia`: Automatically detects and configures the necessary environment variables for NVIDIA GPUs.
 *   `uninstall`: Removes the Serein environment, including all configurations and the `serein` command itself.

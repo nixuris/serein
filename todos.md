@@ -1,1 +1,0 @@
-1. Press enter at `Are you sure you want to continue? This will remove the configurations listed above. [y/N]:` without selecting cancels the script, goal is to make blank option count as "Y" not "N".
