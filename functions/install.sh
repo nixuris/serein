@@ -69,6 +69,7 @@ if [[ "$2" == "--persistent" ]]; then
     INSTALL_MODE="persistent"
 fi
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+REPO_ROOT=$(cd "$SCRIPT_DIR/.." && pwd)
 
 # --- Paru Installation ---
 # Installs paru if it is not already installed.
@@ -109,12 +110,12 @@ else
 fi
 
 # --- Package Lists ---
-PKGS_MINIMAL=$(cat "$persistent_dir/assets/packages.minimal")
-PKGS_EXTRA=$(cat "$persistent_dir/assets/packages.full")
+PKGS_MINIMAL=$(cat "$REPO_ROOT/assets/packages.minimal")
+PKGS_EXTRA=$(cat "$REPO_ROOT/assets/packages.full")
 
 # --- Config Lists ---
 CONFIG_DIR="$HOME/.config"
-REPO_CONFIG_DIR="$SCRIPT_DIR/.config"
+REPO_CONFIG_DIR="$REPO_ROOT/.config"
 
 CONFIGS_MINIMAL=("hypr" "waybar" "rofi" "swaylock" "swappy" "swaync")
 CONFIGS_EXTRA=("alacritty" "fastfetch" "fish" "nvim" "ranger" "udiskie")
@@ -124,7 +125,7 @@ CONFIGS_EXTRA=("alacritty" "fastfetch" "fish" "nvim" "ranger" "udiskie")
 if [ "$INSTALL_TYPE" == "full" ]; then
     info "Installing full package set..."
     paru -S --noconfirm --needed $PKGS_MINIMAL $PKGS_EXTRA
-    touch "$SCRIPT_DIR/.full_install"
+    touch "$REPO_ROOT/.full_install"
 else
     info "Installing minimal package set..."
     paru -S --noconfirm --needed $PKGS_MINIMAL
@@ -141,8 +142,8 @@ info "The following configurations will be removed and replaced:"
 for cfg in "${configs_to_install[@]}"; do
     echo "- $CONFIG_DIR/$cfg"
 done
-read -rp "Are you sure you want to continue? This will remove the configurations listed above. [y/N]: " confirm
-if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
+read -rp "Are you sure you want to continue? This will remove the configurations listed above. [Y/n]: " confirm
+if [[ "$confirm" =~ ^[Nn]$ ]]; then
     info "Installation cancelled."
     exit 0
 fi
