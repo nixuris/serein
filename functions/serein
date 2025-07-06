@@ -54,6 +54,7 @@ case "$1" in
 
         # Update based on flag
         pushd "$persistent_dir" >/dev/null
+            before_hash=$(git rev-parse HEAD)
             if [ "$2" == "stable" ]; then
                 info "Updating to the latest stable release..."
                 if ! git fetch --tags; then
@@ -68,6 +69,12 @@ case "$1" in
                 if ! git pull; then
                     error "git pull failed. You may have local changes. Please stash or commit them first."
                 fi
+            fi
+            after_hash=$(git rev-parse HEAD)
+            if [ "$before_hash" == "$after_hash" ]; then
+                info "Already up to date. No new generation created."
+                popd >/dev/null
+                exit 0
             fi
         popd >/dev/null
 
