@@ -174,8 +174,7 @@ else
         cp -r "$REPO_CONFIG_DIR/$cfg" "$CONFIG_DIR/"
         cp "$REPO_ROOT/.config/monitors.conf" "$HOME"
     done
-    info "Copying serein command to /usr/local/bin..."
-    sudo cp "$SCRIPT_DIR/serein" /usr/local/bin/serein
+    info "Skipping serein CLI installation for one-time mode."
 fi
 
 # Create Trash dir for ranger only on full install
