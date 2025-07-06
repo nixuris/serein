@@ -109,8 +109,8 @@ else
 fi
 
 # --- Package Lists ---
-PKGS_MINIMAL=$(cat "$SCRIPT_DIR/packages.minimal")
-PKGS_EXTRA=$(cat "$SCRIPT_DIR/packages.full")
+PKGS_MINIMAL=$(cat "$persistent_dir/packages.minimal")
+PKGS_EXTRA=$(cat "$persistent_dir/packages.full")
 
 # --- Config Lists ---
 CONFIG_DIR="$HOME/.config"
