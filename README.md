@@ -6,7 +6,7 @@ Personal Arch Linux Hyprland Configuration for FX507ZU4
 To install the Serein environment, run the following command in your terminal:
 
 ```bash
-bash <(curl -s https://raw.githubusercontent.com/nixuris/serein/main/install.sh)
+bash <(curl -s https://raw.githubusercontent.com/nixuris/serein/main/functions/install.sh)
 ```
 
 The installer will guide you through the rest of the process.
