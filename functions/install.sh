@@ -28,7 +28,7 @@ if [[ "$1" != "--run-stage-2" ]]; then
     install_mode=${install_mode:-p}
 
     # Choose git history depth
-    read -rp "Clone with full git history? (useful for developers) [y/N]: " clone_history
+    read -rp "Clone with full git history? [y/N]: " clone_history
     clone_history=${clone_history:-n}
     clone_args=""
     if [[ ! "$clone_history" =~ ^[Yy]$ ]]; then
@@ -165,7 +165,7 @@ if [ "$INSTALL_MODE" == "persistent" ]; then
         ln -s "$REPO_CONFIG_DIR/$cfg" "$CONFIG_DIR/$cfg"
     done
     info "Symlinking serein command to /usr/local/bin..."
-    sudo ln -s "$SCRIPT_DIR/../serein" /usr/local/bin/serein
+    sudo ln -s "$SCRIPT_DIR/serein" /usr/local/bin/serein
 else
     info "Copying new configurations for one-time installation..."
     for cfg in "${configs_to_install[@]}"; do
@@ -173,7 +173,7 @@ else
         cp -r "$REPO_CONFIG_DIR/$cfg" "$CONFIG_DIR/"
     done
     info "Copying serein command to /usr/local/bin..."
-    sudo cp "$SCRIPT_DIR/../serein" /usr/local/bin/serein
+    sudo cp "$SCRIPT_DIR/serein" /usr/local/bin/serein
 fi
 
 # Create Trash dir for ranger only on full install
