@@ -185,9 +185,22 @@ case "$1" in
             info "Uninstallation cancelled."
             exit 0
         fi
+
+        read -rp "Do you want to remove all installed packages as well? [y/N]: " remove_packages
+        
         info "Uninstalling Serein..."
         persistent_dir="$HOME/.cache/serein"
         if [ -d "$persistent_dir" ]; then
+            if [[ "$remove_packages" =~ ^[Yy]$ ]]; then
+                info "Removing installed packages..."
+                if [ -f "$persistent_dir/.full_install" ]; then
+                    info "Full installation detected. Removing all packages..."
+                    paru -Rns --noconfirm $(cat "$persistent_dir/assets/packages.minimal" "$persistent_dir/assets/packages.full")
+                else
+                    info "Minimal installation detected. Removing minimal packages..."
+                    paru -Rns --noconfirm $(cat "$persistent_dir/assets/packages.minimal")
+                fi
+            fi
             "$persistent_dir/functions/resymlink.sh" --unsymlink
             sudo rm /usr/local/bin/serein
             rm -rf "$persistent_dir"
