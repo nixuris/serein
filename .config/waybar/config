@@ -96,9 +96,6 @@
     "modules-left": [
       "custom/padd",
       "custom/l_end",
-      "hyprland/workspaces",
-      "custom/r_end",
-      "custom/l_end",
       "hyprland/window",
       "custom/r_end",
       "custom/padd"
@@ -156,8 +153,8 @@
         "󰈸"
       ],
       "hwmon-path": [
-        "/sys/class/hwmon/hwmon6/temp1_input",
-        "/sys/class/thermal/thermal_zone6/temp"
+        "/sys/class/thermal/thermal_zone3/temp",
+        "/sys/class/thermal/thermal_zone5/temp"
       ],
       "interval": 1,
       "tooltip": true
