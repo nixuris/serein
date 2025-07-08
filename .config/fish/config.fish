@@ -5,6 +5,9 @@ if status is-interactive
     export VISUAL="nvim"
     fish_add_path .local/bin
     fish_add_path .cargo/bin
+    set -U fish_color_command blue
+    set -U fish_color_param normal
+    set -U fish_color_error red
 
     alias xs="paru -S"
     alias xr="paru -Rns"

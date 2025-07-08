@@ -16,6 +16,7 @@
 .config/hypr/pics/EDKIo6D.png
 .config/hypr/pics/poster.png
 .config/fish/fish_variables
+.config/fish/completions
 .config/nvim/lazy-lock.json
 generations/
 todos.md
