@@ -19,3 +19,4 @@
 .config/nvim/lazy-lock.json
 generations/
 todos.md
+.full_install
