@@ -204,7 +204,7 @@ case "$1" in
             "$persistent_dir/functions/resymlink.sh" --unsymlink
             sudo rm /usr/local/bin/serein
             rm -rf "$persistent_dir"
-            rm "$HOME/monitors.conf"
+            rm "$HOME/user.conf"
             rm -rf "$HOME/.cache/rofi"
             rm -rf "$HOME/.cache/rofi_icon"
             info "Serein has been uninstalled."
