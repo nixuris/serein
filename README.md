@@ -18,7 +18,9 @@ The installation script is designed to be flexible and safe, with the following 
 *   **Two Installation Modes**:
     *   **Persistent (Recommended)**: Clones the repository to `$HOME/.cache/serein` and symlinks the configurations. This allows for easy updates and management using the `serein` command.
     *   **One-Time**: Clones the repository to a temporary directory and copies the configurations. This is a standalone installation that won't have the `serein` cli tool.
-*   **Git History**: You can choose to clone the repository with the full git history, which is useful for developers who may want to contribute to the project.
+*   **Stable or Edge Installation**:
+    *   **Stable**: Clones the latest stable release tag, ensuring a well-tested configuration. This is the recommended choice for most users.
+    *   **Edge**: Performs a shallow clone of the main branch for those who want the latest, cutting-edge features.
 *   **System Update**: Before installing any packages, the script will update your system using `paru -Syu`.
 *   **Minimal and Full Installation Types**:
     *   **Minimal**: Installs the bare minimum packages and symlink/copy the bare minimum config files required for the Serein environment to function.
