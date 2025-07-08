@@ -194,6 +194,8 @@ echo ""
 info "--- Post-Installation Best Practices ---"
 echo " - Do NOT manually modify files in ~/.cache/serein or serein's configs in ~/.config unless you selected One-Time installation."
 echo " - If you selected One-Time installation, to remove rollback backups, use 'serein rollback remove <generation>' instead of 'rm -rf'."
+echo " - Please make sure you put wallpapers in the ~/Wallpapers directory."
+echo " - The hyprland monitors config will be put at ~/user.conf, edit it according to the wiki or example configurations."
 echo ""
 
 read -rp "Reboot now to apply all changes? [Y/n]: " reboot_choice
