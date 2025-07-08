@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
-#This script requires imagemagick, please add it via systempkgs
+for app in imagemagick; do
+  if ! pacman -Q $app >/dev/null 2>&1; then
+    ./notify_send "Missing package" "Please install the $app package to continue"
+    exit 1
+  fi
+done
 set -euo pipefail  # Exit on error, undefined vars, and pipe failures
 
 # Set some variables
-WALL_DIR="${HOME}/.config/hypr/pics/"
+WALL_DIR="${HOME}/Wallpapers/"
 CACHE_DIR="${HOME}/.cache/rofi_icons/"
-TRACKING_FILE="$HOME/.config/hypr/pics/wallpaper_tracking.txt"
-
+ROFI_IMG_DIR="$HOME/.cache/rofi/"
 # Cleanup function to handle script interruption
 cleanup() {
   echo "Wallpaper selection cancelled."
@@ -67,8 +71,9 @@ swww query >/dev/null 2>&1 || swww init
 swww img "${WALL_DIR}${BASENAME}" --transition-bezier .43,1.19,1,.4 --transition-fps 144 --transition-type grow --transition-duration 2 --transition-pos 0.680,0.970
 
 # Save the current wallpaper name
-echo "$BASENAME" > "$TRACKING_FILE"
+echo "$BASENAME" > "$WALL_DIR/wallpaper_tracking.txt"
 
 # Update config files with the new wallpaper
-sed -i "s#background-image:.*#background-image: url(\"${WALL_DIR}${BASENAME}\",width);#" "$HOME/.config/rofi/themes/menu.rasi"
+mkdir -p "${ROFI_IMG_DIR}"
+sed -i "s#background-image:.*#background-image: url(\"${WALL_DIR}${BASENAME}\",width);#" "${ROFI_IMG_DIR}/img_path.rasi"
 echo "Wallpaper set successfully!"
