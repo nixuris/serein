@@ -27,12 +27,20 @@ if [[ "$1" != "--run-stage-2" ]]; then
     read -rp "Choose installation mode [P]ersistent (recommended) or [O]ne-time? [P/o]: " install_mode
     install_mode=${install_mode:-p}
 
-    # Choose git history depth
-    read -rp "Clone with full git history? [y/N]: " clone_history
-    clone_history=${clone_history:-n}
+    # Choose installation type
+    read -rp "Choose installation type [S]table or [E]dge? [S/e]: " install_type
+    install_type=${install_type:-s}
     clone_args=""
-    if [[ ! "$clone_history" =~ ^[Yy]$ ]]; then
+    if [[ "$install_type" =~ ^[Ee]$ ]]; then
+        info "Using bleeding edge installation (shallow clone)."
         clone_args="--depth=1"
+    else
+        info "Using stable installation (cloning latest tag)."
+        latest_tag=$(git ls-remote --tags https://github.com/nixuris/serein.git | awk '{print $2}' | grep -v '{}' | awk -F/ '{print $3}' | sort -V | tail -n 1)
+        if [ -z "$latest_tag" ]; then
+            error "Could not find latest stable tag. Please try the edge installation."
+        fi
+        clone_args="--branch $latest_tag --single-branch"
     fi
 
     if [[ "$install_mode" =~ ^[Pp]$ ]]; then

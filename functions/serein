@@ -56,11 +56,17 @@ case "$1" in
         pushd "$persistent_dir" >/dev/null
             before_hash=$(git rev-parse HEAD)
             if [ "$2" == "stable" ]; then
-                info "Updating to the latest stable release..."
-                if ! git fetch --tags; then
-                    error "git fetch failed. Please check your internet connection and repository status."
-                fi
+                info "Checking for stable updates..."
+                git fetch --tags
                 latest_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
+                current_tag=$(git describe --tags)
+
+                if [ "$current_tag" == "$latest_tag" ]; then
+                    info "You are already on the latest stable release."
+                    exit 0
+                fi
+
+                info "Updating to the latest stable release ($latest_tag)..."
                 if ! git checkout "$latest_tag"; then
                     error "git checkout failed. You may have local changes. Please stash or commit them first."
                 fi
@@ -136,19 +142,32 @@ case "$1" in
             error "Generation '$2' not found."
         fi
 
+        commit_hash_file="$target_generation/.commit_hash"
+        if [ ! -f "$commit_hash_file" ]; then
+            error "Generation '$2' is old and does not have a commit hash. Cannot perform a safe rollback."
+        fi
+        commit_hash=$(cat "$commit_hash_file")
+
         read -rp "Are you sure you want to roll back to generation $2? [y/N]: " confirm
         if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
             info "Rollback cancelled."
             exit 0
         fi
 
-        info "Rolling back to generation $2..."
+        info "Rolling back to generation $2 (commit $commit_hash)..."
         
         # Unsymlink configs
         "$persistent_dir/functions/resymlink.sh" --unsymlink
 
-        # Restore from backup
-        rsync -a --delete "$target_generation/" "$persistent_dir/"
+        # Restore git state
+        pushd "$persistent_dir" >/dev/null
+            if ! git diff-index --quiet HEAD --; then
+                error "You have uncommitted changes in your Serein directory. Please commit or stash them before rolling back."
+            fi
+            if ! git checkout "$commit_hash"; then
+                error "git checkout failed. The repository might be in an unexpected state."
+            fi
+        popd >/dev/null
 
         # Resymlink configs
         "$persistent_dir/functions/resymlink.sh" --symlink
