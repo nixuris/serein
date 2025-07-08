@@ -205,6 +205,8 @@ case "$1" in
             sudo rm /usr/local/bin/serein
             rm -rf "$persistent_dir"
             rm "$HOME/monitors.conf"
+            rm -rf "$HOME/.cache/rofi"
+            rm -rf "$HOME/.cache/rofi_icon"
             info "Serein has been uninstalled."
         else
             error "Serein is not installed persistently."

@@ -157,13 +157,16 @@ for cfg in "${configs_to_install[@]}"; do
 done
 
 mkdir -p "$CONFIG_DIR"
-
+ROFI_IMG_PATH="$HOME/.cache/rofi"
 if [ "$INSTALL_MODE" == "persistent" ]; then
     info "Symlinking new configurations for persistent installation..."
     for cfg in "${configs_to_install[@]}"; do
         info "Symlinking config: $cfg"
         ln -s "$REPO_CONFIG_DIR/$cfg" "$CONFIG_DIR/$cfg"
         cp "$REPO_ROOT/.config/monitors.conf" "$HOME"
+        mkdir -p "$ROFI_IMG_PATH"
+        cp "$REPO_ROOT/.config/img_path.rasi" "$ROFI_IMG_PATH"
+        cp -rf "$REPO_ROOT/assets/Wallpapers" "$HOME"
     done
     info "Symlinking serein command to /usr/local/bin..."
     sudo ln -s "$SCRIPT_DIR/serein" /usr/local/bin/serein
@@ -173,6 +176,9 @@ else
         info "Copying config: $cfg"
         cp -r "$REPO_CONFIG_DIR/$cfg" "$CONFIG_DIR/"
         cp "$REPO_ROOT/.config/monitors.conf" "$HOME"
+        mkdir -p "$ROFI_IMG_PATH"
+        cp "$REPO_ROOT/.config/img_path.rasi" "$ROFI_IMG_PATH"
+        cp -rf "$REPO_ROOT/assets/Wallpapers" "$HOME"
     done
     info "Skipping serein CLI installation for one-time mode."
 fi
