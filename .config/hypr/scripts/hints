@@ -15,7 +15,7 @@ fi
 # Launch yad with calculated width and height
 GDK_BACKEND=$BACKEND yad \
     --center \
-    --title="Serein Keybinds" \
+    --title="Serein's System Keybindings" \
     --no-buttons \
     --list \
     --column=Key: \
@@ -32,8 +32,8 @@ GDK_BACKEND=$BACKEND yad \
 " Shift Q " "kills an active window" "(single window)" \
 " F" "Fullscreen" "Toggles to full screen" \
 " W" "Toggle float" "single window" \
-" A" "Overview Workspaces" "9 Workspaces by default" \
-" ↑↓→←" "Switch to Workspaces" "" \
+" A" "Overview Workspaces" "serein enable overview is required" \
+" ↑↓→←" "Switch to Workspaces" "9 Workspaces by default" \
 "ALT ↑↓→←" "Focus Windows" "single window" \
 " SHIFT ↑↓→←" "Resize Windows" "single window" \
 " CTRL ↑↓→←" "Move Windows To Directions" "single window" \
@@ -48,8 +48,4 @@ GDK_BACKEND=$BACKEND yad \
 " ALT S" "screenshot fullscreen" "No prompt" \
 " Shift W" "Choose wallpaper" "(imagemagick + swww)" \
 " R" "Refresh Waybar and Hyprland" "Refresh Waybar, Hyprland and its components" \
-"" "" "" \
-" P" "View processes" "(btop)" \
-" SHIFT P" "View processes" "(htop)" \
-" T" "Open File Manager" "(ranger)" \
 "" "" "" \
