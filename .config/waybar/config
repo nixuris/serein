@@ -1,5 +1,49 @@
 [
   {
+/* 
+   ████████╗ ██████╗ ██████╗ 
+   ╚══██╔══╝██╔═══██╗██╔══██╗
+      ██║   ██║   ██║██████╔╝
+      ██║   ██║   ██║██╔═══╝ 
+      ██║   ╚██████╔╝██║     
+      ╚═╝    ╚═════╝ ╚═╝     
+*/
+    "exclusive": true,
+    "passthrough": false,
+    "position": "top",
+    "reload_style_on_change": true,
+    "gtk-layer-shell": true,
+    "width": 1000
+    "height": 43,
+    "layer": "top",
+    "margin-top": 10,
+    "mod": "dock",
+    
+    "modules-left": [
+      "custom/padd",
+      "custom/l_end",
+      "hyprland/window",
+      "custom/r_end",
+      "custom/padd"
+    ],
+    
+    "modules-center": [],
+    
+    "modules-right": [
+      "custom/padd",
+      "custom/l_end",
+      "cpu",
+      "temperature",
+      "memory",
+      "custom/r_end",
+      "custom/l_end",
+      "pulseaudio",
+      "pulseaudio#microphone",
+      "backlight",
+      "custom/r_end",
+      "custom/padd"
+    ],
+    
     "backlight": {
       "device": "intel_backlight",
       "format": "{icon} {percent}%",
@@ -17,38 +61,10 @@
     },
     "cpu": {
       "format": "󰍛 {usage}%",
-      "format-alt": "{icon0}{icon1}{icon2}{icon3}",
-      "format-icons": [
-        "▁",
-        "▂",
-        "▃",
-        "▄",
-        "▅",
-        "▆",
-        "▇",
-        "█"
-      ],
       "interval": 1,
       "rotate": 0
     },
-    "custom/l_end": {
-      "format": " ",
-      "interval": "once",
-      "tooltip": false
-    },
-    "custom/padd": {
-      "format": " ",
-      "interval": "once",
-      "tooltip": false
-    },
-    "custom/r_end": {
-      "format": " ",
-      "interval": "once",
-      "tooltip": false
-    },
-    "exclusive": true,
-    "gtk-layer-shell": true,
-    "height": 43,
+    
     "hyprland/window": {
       "format": "{}",
       "icon": true,
@@ -72,8 +88,6 @@
       },
       "rotate": 0
     },
-    "layer": "top",
-    "margin-top": 10,
     "memory": {
       "format": "󰾆 {used}GB",
       "format-alt": "󰾆 {percentage}%",
@@ -91,34 +105,7 @@
       "tooltip": true,
       "tooltip-format": "󰾆 {percentage}%\n {used:0.1f}GB/{total:0.1f}GB"
     },
-    "mod": "dock",
-    "modules-center": [],
-    "modules-left": [
-      "custom/padd",
-      "custom/l_end",
-      "hyprland/window",
-      "custom/r_end",
-      "custom/padd"
-    ],
-    "modules-right": [
-      "custom/padd",
-      "custom/l_end",
-      "cpu",
-      "temperature",
-      "memory",
-      "custom/r_end",
-      "custom/l_end",
-      "pulseaudio",
-      "pulseaudio#microphone",
-      "backlight",
-      "custom/r_end",
-      "custom/padd"
-    ],
-    "output": [
-      "eDP-1"
-    ],
-    "passthrough": false,
-    "position": "top",
+    
     "pulseaudio": {
       "format": "{icon} {volume}%",
       "format-icons": {
@@ -144,7 +131,6 @@
       "scroll-step": 5,
       "tooltip-format": "{format_source} {source_volume}%"
     },
-    "reload_style_on_change": true,
     "temperature": {
       "critical-threshold": 82,
       "format": "{icon} {temperatureC}°C",
@@ -159,9 +145,58 @@
       "interval": 1,
       "tooltip": true
     },
-    "width": 1000
+    "custom/l_end": {
+      "format": " ",
+      "interval": "once",
+      "tooltip": false
+    },
+    "custom/padd": {
+      "format": " ",
+      "interval": "once",
+      "tooltip": false
+    },
+    "custom/r_end": {
+      "format": " ",
+      "interval": "once",
+      "tooltip": false
+    },
   },
+/*
+  ███████╗██╗██████╗ ███████╗
+  ██╔════╝██║██╔══██╗██╔════╝
+  ███████╗██║██║  ██║█████╗  
+  ╚════██║██║██║  ██║██╔══╝  
+  ███████║██║██████╔╝███████╗
+  ╚══════╝╚═╝╚═════╝ ╚══════╝
+                           
+*/
   {
+    "exclusive": true,
+    "gtk-layer-shell": true,
+    "height": 750,
+    "layer": "top",
+    "margin-left": 10,
+    "mod": "dock",
+    "width": 53
+    "passthrough": false,
+    "position": "left",
+    "reload_style_on_change": true,
+    
+    "modules-left": [
+      "custom/logo",
+      "clock",
+      "tray"
+    ],
+    
+    "modules-center": [],
+    
+    "modules-right": [
+      "network",
+      "custom/swaync",
+      "battery",
+      "custom/power"
+    ],
+
     "battery": {
       "format": " {icon}\n{capacity}%",
       "format-alt": "{time} {icon}",
@@ -188,19 +223,7 @@
       "format": "",
       "format-connected": "󰂱",
       "format-disabled": "󰂲",
-      "format-icons": [
-        "󰥇",
-        "󰤾",
-        "󰤿",
-        "󰥀",
-        "󰥁",
-        "󰥂",
-        "󰥃",
-        "󰥄",
-        "󰥅",
-        "󰥆",
-        "󰥈"
-      ],
+      "format-icons": [ "󰥇", "󰤾", "󰤿", "󰥀", "󰥁", "󰥂", "󰥃", "󰥄", "󰥅", "󰥆", "󰥈" ],
       "rotate": 0,
       "tooltip-format": "{controller_alias}\n{num_connections} connected",
       "tooltip-format-connected": "{device_enumerate}"
@@ -259,24 +282,6 @@
       "return-type": "json",
       "tooltip": false
     },
-    "exclusive": true,
-    "gtk-layer-shell": true,
-    "height": 750,
-    "layer": "top",
-    "margin-left": 10,
-    "mod": "dock",
-    "modules-center": [],
-    "modules-left": [
-      "custom/logo",
-      "clock",
-      "tray"
-    ],
-    "modules-right": [
-      "network",
-      "custom/swaync",
-      "battery",
-      "custom/power"
-    ],
     "network": {
       "format-alt": "  {essid}\n {bandwidthDownBytes:<1}\n {bandwidthUpBytes:<1}",
       "format-disconnected": "󰖪 ",
@@ -288,17 +293,10 @@
       "tooltip": true,
       "tooltip-format": "<span foreground='#86afef'>  {essid}:\n {bandwidthDownBytes}</span>\n<span foreground='#86afef'> {bandwidthUpBytes}</span>"
     },
-    "output": [
-      "eDP-1"
-    ],
-    "passthrough": false,
-    "position": "left",
-    "reload_style_on_change": true,
     "tray": {
       "icon-size": 18,
       "rotate": 0,
       "spacing": 10
     },
-    "width": 53
   }
 ]

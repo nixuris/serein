@@ -37,7 +37,7 @@ get_user_choices() {
 
     # Confirm Paru installation
     if ! command_exists paru; then
-        read -rp "Paru is not installed. Install it now? [Y/n]: " PARU_INSTALL_CHOICE
+      read -rp "Paru is not installed. Install it now? (required for the script) [Y/n]: " PARU_INSTALL_CHOICE
         PARU_INSTALL_CHOICE=${PARU_INSTALL_CHOICE:-y}
     else
         PARU_INSTALL_CHOICE="n" # Paru is already installed
