@@ -13,7 +13,7 @@
     "position": "top",
     "reload_style_on_change": true,
     "gtk-layer-shell": true,
-    "width": 1000
+    "width": 1000,
     "height": 43,
     "layer": "top",
     "margin-top": 10,
