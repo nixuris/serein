@@ -24,7 +24,7 @@ get_user_choices() {
     info "Please answer the following questions to configure your installation."
 
     # Choose installation mode
-    read -rp "Choose installation mode [P]ersistent (recommended) or [O]ne-time? [P/o]: " INSTALL_MODE_CHOICE
+    read -rp "Choose installation mode [P]ersistent or [O]ne-time? [P/o]: " INSTALL_MODE_CHOICE
     INSTALL_MODE_CHOICE=${INSTALL_MODE_CHOICE:-p}
 
     # Choose installation version
@@ -32,12 +32,12 @@ get_user_choices() {
     INSTALL_VERSION_CHOICE=${INSTALL_VERSION_CHOICE:-s}
 
     # Choose installation type
-    read -rp "Perform a full installation (includes extra packages and configs)? [Y/n]: " FULL_INSTALL_CHOICE
-    FULL_INSTALL_CHOICE=${FULL_INSTALL_CHOICE:-y}
+    read -rp "[F]ull installation or [M]inimal installation (recommended)? [F/m]: " FULL_INSTALL_CHOICE
+    FULL_INSTALL_CHOICE=${FULL_INSTALL_CHOICE:-F}
 
     # Confirm Paru installation
     if ! command_exists paru; then
-      read -rp "Paru is not installed. Install it now? (required for the script) [Y/n]: " PARU_INSTALL_CHOICE
+      read -rp "Paru is not installed. Install it now? (required for the installation) [Y/n]: " PARU_INSTALL_CHOICE
         PARU_INSTALL_CHOICE=${PARU_INSTALL_CHOICE:-y}
     else
         PARU_INSTALL_CHOICE="n" # Paru is already installed
@@ -131,7 +131,7 @@ run_stage_2() {
 
     # --- Installation Type ---
     local INSTALL_TYPE="minimal"
-    if [[ "$FULL_INSTALL_CHOICE" =~ ^[Yy]$ ]]; then
+    if [[ "$FULL_INSTALL_CHOICE" =~ ^[Ff]$ ]]; then
         INSTALL_TYPE="full"
     fi
 
@@ -215,11 +215,13 @@ run_stage_2() {
     # --- Final Steps ---
     info "Installation complete!"
     echo ""
-    info "--- Post-Installation Best Practices ---"
-    echo " - Do NOT manually modify files in ~/.cache/serein or serein's configs in ~/.config unless you selected One-Time installation."
-    echo " - If you selected One-Time installation, to remove rollback backups, use 'serein rollback remove <generation>' instead of 'rm -rf'."
+    if [ "$INSTALL_MODE" == "persistent" ]; then
+        info "--- Post-Installation Best Practices ---"
+        echo " - Do NOT manually modify files in ~/.cache/serein. Use the 'serein' command to manage your installation."
+        echo " - To remove rollback backups, use 'serein rollback remove <generation>' instead of 'rm -rf'."
+    fi
     echo " - Please make sure you put wallpapers in the ~/Wallpapers directory."
-    echo " - The hyprland monitors config will be put at ~/user.conf, edit it according to the wiki or example configurations."
+    echo " - The hyprland monitors config will be put at ~/user.conf, edit it according to the wiki or example configurations."    
     echo ""
 
     if [[ "$REBOOT_CHOICE" =~ ^[Yy]$ ]]; then
