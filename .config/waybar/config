@@ -177,7 +177,7 @@
     "layer": "top",
     "margin-left": 10,
     "mod": "dock",
-    "width": 53
+    "width": 53,
     "passthrough": false,
     "position": "left",
     "reload_style_on_change": true,
