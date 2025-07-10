@@ -1,0 +1,8 @@
+pyproject.toml
+serein/main.py
+serein.egg-info/PKG-INFO
+serein.egg-info/SOURCES.txt
+serein.egg-info/dependency_links.txt
+serein.egg-info/entry_points.txt
+serein.egg-info/requires.txt
+serein.egg-info/top_level.txt
