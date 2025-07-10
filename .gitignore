@@ -22,3 +22,4 @@ generations/
 todos.md
 .full_install
 serein_py/serein.egg-info
+serein_py/serein/__pycache__
