@@ -258,35 +258,18 @@ def rollback_command(
                     else:
                         error(f"Cannot symlink {cfg}. {target_path} exists as a real directory and user chose not to remove it.")
 
-            # Restore git state by copying files from the backup directory
-            info(f"Restoring files from backup directory: {target_generation_path}...")
-            # First, clean the persistent_dir (excluding .git and generations)
-            for item in os.listdir(persistent_dir):
-                if item not in [".git", "generations"]:
-                    item_path = os.path.join(persistent_dir, item)
-                    if os.path.isdir(item_path):
-                        shutil.rmtree(item_path)
-                    else:
-                        os.remove(item_path)
-
-            # Now copy from backup
-            restore_command = [
-                "rsync", "-a",
-                f"{target_generation_path}/", # Source (backup)
-                f"{persistent_dir}/"          # Destination (persistent_dir)
-            ]
-            _, _, _ = run_command(" ".join(restore_command), error_message="Failed to restore files from backup.")
-
-            # After restoring files, ensure the git repository is at the correct commit
+            # Restore git state by resetting the branch to the specific commit
+            info(f"Resetting Serein to commit {commit_hash}...")
             original_cwd = os.getcwd()
             os.chdir(persistent_dir)
 
-            # Check for uncommitted changes (shouldn't be any after rsync, but good to be safe)
-            _, _, exit_code = run_command("git diff-index --quiet HEAD --", check_error=False)
-            if exit_code != 0:
-                error("You have uncommitted changes in your Serein directory after file restore. Please commit or stash them before rolling back.")
+            # Use git reset --hard to revert to the specific commit
+            # This will discard all current changes and set the HEAD to the specified commit
+            _, _, _ = run_command(f"git reset --hard {commit_hash}", error_message="git reset failed. The repository might be in an unexpected state.")
+            
+            # Clean the repository of any untracked files that might interfere
+            _, _, _ = run_command("git clean -fd", error_message="git clean failed. Could not remove untracked files.")
 
-            _, _, _ = run_command(f"git checkout {commit_hash}", error_message="git checkout failed. The repository might be in an unexpected state.")
             os.chdir(original_cwd)
 
             # Resymlink configs
