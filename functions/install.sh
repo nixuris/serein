@@ -225,11 +225,12 @@ run_stage_2() {
     echo ""
     if [ "$INSTALL_MODE" == "persistent" ]; then
         info "--- Post-Installation Best Practices ---"
-        echo " - Do NOT manually modify files in ~/.cache/serein. Use the 'serein' command to manage your installation."
-        echo " - To remove rollback backups, use 'serein rollback remove <generation>' instead of 'rm -rf'."
+        echo " - Do NOT manually modify files in ~/.cache/serein. Use the 'serein' command to manage your environment."
+        echo " - To remove rollback backups, use 'serein rollback' instead of 'rm -rf'."
     fi
     echo " - Please make sure you put wallpapers in the ~/Wallpapers directory."
-    echo " - The hyprland monitors config will be put at ~/user.conf, edit it according to the wiki or example configurations."    
+    echo " - The hyprland user config will be put at ~/user.conf, edit it according to the wiki or example configurations."    
+    echo " - Prioritize adjust the important section in ~/usr.conf."    
     echo ""
 
     if [[ "$REBOOT_CHOICE" =~ ^[Yy]$ ]]; then
