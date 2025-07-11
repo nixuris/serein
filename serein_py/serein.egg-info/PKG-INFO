@@ -1,6 +1,0 @@
-Metadata-Version: 2.4
-Name: serein
-Version: 0.1.0
-Summary: A tool to manage your Serein desktop environment.
-Author-email: Nixuris <nixuriss@proton.me>
-Requires-Dist: click
