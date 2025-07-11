@@ -31,9 +31,7 @@ The installation script is designed to be flexible and safe, with the following 
 The `serein` command-line tool is the central hub for managing your Serein environment. It provides the following features:
 
 *   `update [stable|edge]`: Updates your system and Serein configurations. You can choose to update to the latest stable release or the bleeding edge.
-*   `rollback <generation>`: Rolls back your Serein configurations to a previous generation.
-*   `rollback list`: Lists all the available generations that you can roll back to.
-*   `rollback remove <gen>`: Removes a specific generation.
+*   `rollback`: Display two choices for the rollback of Serein Environment. Either remove or rollback to selected generation.
 *   `enable overview`: Enables the Hyprland overview plugin (hyprtasking).
 *   `disable overview`: Disables the Hyprland overview plugin.
 *   `uninstall`: Removes the Serein environment, including all configurations and the `serein` command itself, all the packages earlier if wanted.
