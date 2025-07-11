@@ -79,6 +79,22 @@ def update_command(
     original_cwd = os.getcwd()
     os.chdir(persistent_dir)
 
+    # Create a temporary backup of the current persistent_dir (pre-update state)
+    temp_backup_dir = os.path.join(os.path.expanduser("~"), ".cache", "serein_temp_backup")
+    shutil.rmtree(temp_backup_dir, ignore_errors=True) # Clean up any previous temp
+    os.makedirs(temp_backup_dir, exist_ok=True)
+
+    info(f"Creating temporary backup of current state at {temp_backup_dir}...")
+    rsync_temp_command = [
+        "rsync", "-a",
+        "--exclude=.git",
+        "--exclude=.gitignore",
+        "--exclude=generations",
+        f"{persistent_dir}/", # Source directory (current state)
+        f"{temp_backup_dir}/" # Destination directory
+    ]
+    run_command(" ".join(rsync_temp_command), error_message="Failed to create temporary backup")
+
     # Change to persistent_dir for git operations
     os.chdir(persistent_dir)
 
@@ -94,6 +110,7 @@ def update_command(
         if current_tag == latest_tag:
             info("You are already on the latest stable release.")
             os.chdir(original_cwd) # Change back before exiting
+            shutil.rmtree(temp_backup_dir) # Clean up temp
             sys.exit(0)
 
         info(f"Updating to the latest stable release ({latest_tag})...")
@@ -108,12 +125,13 @@ def update_command(
     if before_hash == after_hash:
         info("Already up to date. No new generation created.")
         os.chdir(original_cwd) # Change back before exiting
+        shutil.rmtree(temp_backup_dir) # Clean up temp
         sys.exit(0)
 
     # Change back to original CWD before creating backup
     os.chdir(original_cwd)
 
-    # Create generation backup of the *previous* state
+    # Create generation backup from the *temporary backup* (pre-update state)
     generation_dir = os.path.join(persistent_dir, "generations")
     os.makedirs(generation_dir, exist_ok=True)
 
@@ -135,20 +153,13 @@ def update_command(
     backup_dir = os.path.join(generation_dir, f"Generation-{generation_num}-{datetime.now().strftime('%Y-%m-%d')}")
     info(f"Creating generation backup of previous state at {backup_dir}...")
 
-    # Use rsync to copy files from the *previous* state (before git pull/checkout)
-    # The persistent_dir is already in the *new* state, so we need to checkout the old state temporarily for backup
-    # This is complex. A simpler approach is to copy the current state (which is the new state)
-    # and store the *previous* commit hash.
-    # Let's stick to the original rsync source, but ensure the commit hash is correct.
-
-    # The rsync source is the persistent_dir, which is now the *updated* state.
-    # The crucial part is that the .commit_hash file stores the *before_hash*.
+    # Use rsync to copy files from the *temporary backup* (pre-update state)
     rsync_command = [
         "rsync", "-a",
         "--exclude=.git",
         "--exclude=.gitignore",
         "--exclude=generations",
-        f"{persistent_dir}/", # Source directory (now updated state)
+        f"{temp_backup_dir}/", # Source directory (pre-update state from temp)
         f"{backup_dir}/"      # Destination directory
     ]
     run_command(" ".join(rsync_command), error_message="Failed to create generation backup")
@@ -156,6 +167,8 @@ def update_command(
     # Store the *before_hash* for rollback
     with open(os.path.join(backup_dir, ".commit_hash"), "w") as f:
         f.write(before_hash) # Store the hash *before* the update for rollback purposes
+    
+    shutil.rmtree(temp_backup_dir) # Clean up the temporary backup directory
 
     # Unsymlink configs
     info("Unsymlinking existing configurations...")
