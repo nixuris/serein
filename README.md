@@ -28,13 +28,46 @@ The installation script is designed to be flexible and safe, with the following 
 
 # Serein CLI
 
-The `serein` command-line tool is the central hub for managing your Serein environment. It provides the following features:
+The `serein` command-line tool is the central hub for managing your Serein environment. It provides a robust set of features for updating, managing configurations, and maintaining your Hyprland setup.
 
-*   `update [stable|edge]`: Updates your system and Serein configurations. You can choose to update to the latest stable release or the bleeding edge.
-*   `rollback`: Display two choices for the rollback of Serein Environment. Either remove or rollback to selected generation. Pair with extra flags like --no-confirm or --keep-backup.
-*   `enable overview`: Enables the Hyprland overview plugin (hyprtasking).
-*   `disable overview`: Disables the Hyprland overview plugin.
-*   `uninstall`: Removes the Serein environment, including all configurations and the `serein` command itself, all the packages earlier if wanted.
+## Commands
+
+*   `serein update [stable|edge] [--force|-f]`:
+    *   Updates your system and Serein configurations.
+    *   `stable`: Updates to the latest stable release tag.
+    *   `edge` (default): Performs a `git pull` to get the latest bleeding-edge features.
+    *   `--force`, `-f`: Force update even if on the latest version.
+*   `serein rollback [--no-confirm|-y] [--keep-backup|-k]`:
+    *   Allows you to revert to a previous configuration "generation" or manage existing backups.
+    *   Provides an interactive prompt to choose between rolling back or deleting a generation.
+    *   `--no-confirm`, `-y`: Skips confirmation prompts for actions.
+    *   `--keep-backup`, `-k`: When deleting a generation, keeps the backup files instead of removing them.
+*   `serein enable <plugin>`:
+    *   Enables a specific Serein feature or plugin.
+    *   Currently supports:
+        *   `overview`: Enables the Hyprland overview plugin (hyprtasking).
+*   `serein disable <plugin>`:
+    *   Disables a specific Serein feature or plugin.
+    *   Currently supports:
+        *   `overview`: Disables the Hyprland overview plugin (hyprtasking).
+*   `serein uninstall`:
+    *   Removes the Serein environment, including all configurations and the `serein` command itself.
+    *   Optionally removes all packages installed by Serein.
+
+## Configuration Management (`serein config`)
+
+The `serein config` subcommand provides granular control over your Serein configurations.
+
+*   `serein config`:
+    *   Runs an interactive mode, allowing you to select configurations to enable or disable using a checkbox interface.
+*   `serein config list`:
+    *   Lists all available Serein configurations and their current status (enabled, unmanaged, disabled).
+*   `serein config enable <config_name>`:
+    *   Enables a specific configuration by creating a symlink from the Serein repository to your `~/.config` directory.
+*   `serein config disable <config_name>`:
+    *   Disables a specific configuration by removing its symlink from your `~/.config` directory.
+
+For more detailed information and examples, please refer to the dedicated Serein CLI documentation.
 
 # Documentation
 
