@@ -22,3 +22,4 @@ generations/
 todos.md
 .full_install
 functions/__pycache__
+.venv

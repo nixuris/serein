@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Get the absolute path to the script itself, resolving symlinks
+SCRIPT_PATH=$(readlink -f "$0")
+# Get the directory containing the script
+SCRIPT_DIR=$(dirname "$SCRIPT_PATH")
+
+# Path to the virtual environment's activate script
+VENV_ACTIVATE="${SCRIPT_DIR}/.venv/bin/activate"
+
+# Path to the main Python application
+PYTHON_APP="${SCRIPT_DIR}/functions/serein.py"
+
+# Check if the virtual environment exists and activate it
+if [ -f "$VENV_ACTIVATE" ]; then
+    source "$VENV_ACTIVATE"
+else
+    echo "Error: Virtual environment not found at $VENV_ACTIVATE" >&2
+    echo "Please ensure you have run 'python3 -m venv .venv' and 'pip install typer[all]'" >&2
+    exit 1
+fi
+
+# Execute the main Python application using the activated virtual environment's python
+exec python "$PYTHON_APP" "$@"

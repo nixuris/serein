@@ -129,6 +129,14 @@ run_stage_2() {
     info "Updating system with paru -Syu..."
     paru -Syu --noconfirm
 
+    # --- Python Environment Setup ---
+    info "Setting up Python virtual environment..."
+    python3 -m venv "$REPO_ROOT/.venv" || error "Failed to create Python virtual environment."
+    source "$REPO_ROOT/.venv/bin/activate" || error "Failed to activate virtual environment."
+    pip install --upgrade pip || error "Failed to upgrade pip."
+    pip install "typer[all]" typing-extensions || error "Failed to install Python dependencies."
+    deactivate # Deactivate the venv after installation
+
     # --- Installation Type ---
     local INSTALL_TYPE="minimal"
     if [[ "$FULL_INSTALL_CHOICE" =~ ^[Ff]$ ]]; then
@@ -193,7 +201,7 @@ run_stage_2() {
         cp "$REPO_ROOT/.config/img_path.rasi" "$ROFI_IMG_PATH"
         cp -rf "$REPO_ROOT/assets/Wallpapers" "$HOME"
         info "Symlinking serein command to /usr/local/bin..."
-        sudo ln -s "$SCRIPT_DIR/serein" /usr/local/bin/serein
+        sudo ln -s "$REPO_ROOT/serein" /usr/local/bin/serein
     else
         info "Copying new configurations for one-time installation..."
         for cfg in "${configs_to_install[@]}"; do

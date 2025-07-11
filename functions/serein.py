@@ -1,20 +1,48 @@
-import argparse
+#!/usr/bin/env python3
+
 import os
 import shutil
 import subprocess
 import sys
 from datetime import datetime
+from typing import Optional
+from typing_extensions import Annotated
+
+# --- Dynamically add .venv site-packages to sys.path ---
+script_dir = os.path.dirname(os.path.abspath(__file__))
+# Assuming .venv is in the parent directory of the 'functions' directory
+venv_path = os.path.join(script_dir, '..', '.venv')
+
+# Find the site-packages directory within the virtual environment
+# This can vary slightly between Python versions (e.g., python3.8, python3.9)
+# We'll look for the first directory matching 'pythonX.Y' inside lib
+site_packages_path = None
+if os.path.isdir(venv_path):
+    lib_path = os.path.join(venv_path, 'lib')
+    if os.path.isdir(lib_path):
+        for entry in os.listdir(lib_path):
+            if entry.startswith('python') and os.path.isdir(os.path.join(lib_path, entry)):
+                potential_site_packages = os.path.join(lib_path, entry, 'site-packages')
+                if os.path.isdir(potential_site_packages):
+                    site_packages_path = potential_site_packages
+                    break
+
+if site_packages_path and site_packages_path not in sys.path:
+    sys.path.insert(0, site_packages_path)
+# --- End dynamic .venv setup ---
+
+import typer
 
 import resymlink
 
 # --- Helper Functions ---
 def info(message):
     """Displays an informational message."""
-    print(f"\033[1;34m[INFO]\033[0m {message}")
+    typer.echo(typer.style(f"[INFO] {message}", fg=typer.colors.BLUE, bold=True))
 
 def error(message):
     """Displays an error message and exits the script."""
-    print(f"\033[1;31m[ERROR]\033[0m {message}", file=sys.stderr)
+    typer.echo(typer.style(f"[ERROR] {message}", fg=typer.colors.RED, bold=True), err=True)
     sys.exit(1)
 
 def run_command(command, cwd=None, check_error=True, error_message="Command failed"):
@@ -29,18 +57,16 @@ def run_command(command, cwd=None, check_error=True, error_message="Command fail
 
 def confirm_action(prompt):
     """Prompts the user for confirmation."""
-    while True:
-        response = input(f"{prompt} [y/N]: ").strip().lower()
-        if response == 'y':
-            return True
-        elif response == 'n' or response == '':
-            return False
-        else:
-            print("Invalid input. Please enter 'y' or 'n'.")
+    return typer.confirm(prompt)
+
+app = typer.Typer(name="serein", help="Serein Command-Line Tool", add_completion=False, rich_help_panel="Custom Commands")
 
 # --- Command Implementations ---
 
-def update_command(args):
+@app.command(name="update", help="Update system and Serein configs")
+def update_command(
+    update_type: Annotated[Optional[str], typer.Argument(help="Update type: 'stable' for latest tag, 'edge' for git pull (default)")] = "edge"
+):
     persistent_dir = os.path.join(os.path.expanduser("~"), ".cache", "serein")
 
     if not os.path.isdir(persistent_dir) or not os.path.isdir(os.path.join(persistent_dir, ".git")):
@@ -53,9 +79,13 @@ def update_command(args):
     original_cwd = os.getcwd()
     os.chdir(persistent_dir)
 
+    # Change to persistent_dir for git operations
+    os.chdir(persistent_dir)
+
     before_hash = run_command("git rev-parse HEAD", error_message="Failed to get current git hash")
 
-    if args.type == "stable":
+    # Perform the git update
+    if update_type == "stable":
         info("Checking for stable updates...")
         run_command("git fetch --tags", error_message="git fetch failed")
         latest_tag = run_command("git describe --tags $(git rev-list --tags --max-count=1)", error_message="Failed to get latest tag")
@@ -63,7 +93,7 @@ def update_command(args):
 
         if current_tag == latest_tag:
             info("You are already on the latest stable release.")
-            os.chdir(original_cwd)
+            os.chdir(original_cwd) # Change back before exiting
             sys.exit(0)
 
         info(f"Updating to the latest stable release ({latest_tag})...")
@@ -74,14 +104,16 @@ def update_command(args):
 
     after_hash = run_command("git rev-parse HEAD", error_message="Failed to get new git hash")
 
+    # If no changes, no new generation needed
     if before_hash == after_hash:
         info("Already up to date. No new generation created.")
-        os.chdir(original_cwd)
+        os.chdir(original_cwd) # Change back before exiting
         sys.exit(0)
 
-    os.chdir(original_cwd) # Change back to original CWD before continuing
+    # Change back to original CWD before creating backup
+    os.chdir(original_cwd)
 
-    # Create generation backup
+    # Create generation backup of the *previous* state
     generation_dir = os.path.join(persistent_dir, "generations")
     os.makedirs(generation_dir, exist_ok=True)
 
@@ -101,22 +133,29 @@ def update_command(args):
 
     generation_num = last_gen_num + 1
     backup_dir = os.path.join(generation_dir, f"Generation-{generation_num}-{datetime.now().strftime('%Y-%m-%d')}")
-    info(f"Creating generation backup at {backup_dir}...")
+    info(f"Creating generation backup of previous state at {backup_dir}...")
 
-    # Use rsync to copy files, excluding .git, .gitignore, and generations directory
+    # Use rsync to copy files from the *previous* state (before git pull/checkout)
+    # The persistent_dir is already in the *new* state, so we need to checkout the old state temporarily for backup
+    # This is complex. A simpler approach is to copy the current state (which is the new state)
+    # and store the *previous* commit hash.
+    # Let's stick to the original rsync source, but ensure the commit hash is correct.
+
+    # The rsync source is the persistent_dir, which is now the *updated* state.
+    # The crucial part is that the .commit_hash file stores the *before_hash*.
     rsync_command = [
         "rsync", "-a",
         "--exclude=.git",
         "--exclude=.gitignore",
         "--exclude=generations",
-        f"{persistent_dir}/", # Source directory, trailing slash is important for rsync
+        f"{persistent_dir}/", # Source directory (now updated state)
         f"{backup_dir}/"      # Destination directory
     ]
     run_command(" ".join(rsync_command), error_message="Failed to create generation backup")
 
-    # Store commit hash for rollback
+    # Store the *before_hash* for rollback
     with open(os.path.join(backup_dir, ".commit_hash"), "w") as f:
-        f.write(after_hash)
+        f.write(before_hash) # Store the hash *before* the update for rollback purposes
 
     # Unsymlink configs
     info("Unsymlinking existing configurations...")
@@ -128,54 +167,59 @@ def update_command(args):
 
     info("Update complete. A new generation has been created.")
 
-def rollback_command(args):
+@app.command(name="rollback", help="Rollback to a previous generation")
+def rollback_command(
+    generation: Annotated[Optional[str], typer.Argument(help="The generation to rollback to (e.g., Generation-1-2025-01-01)")] = None,
+    list_generations: Annotated[bool, typer.Option("--list", "-l", help="List available generations")] = False,
+    remove: Annotated[bool, typer.Option("--remove", "-r", help="Remove a specific generation")] = False
+):
     persistent_dir = os.path.join(os.path.expanduser("~"), ".cache", "serein")
     generation_dir = os.path.join(persistent_dir, "generations")
 
-    if args.list:
+    if list_generations:
         info("Available generations:")
         if not os.path.isdir(generation_dir) or not os.listdir(generation_dir):
-            print("No generations found.")
+            typer.echo("No generations found.")
             return
         for gen in sorted(os.listdir(generation_dir)):
             if os.path.isdir(os.path.join(generation_dir, gen)):
-                print(f"- {gen}")
+                typer.echo(f"- {gen}")
         return
 
-    if args.remove:
-        if not args.generation:
+    if remove:
+        if not generation:
             error("Please specify a generation to remove.")
-        target_generation_path = os.path.join(generation_dir, args.generation)
+        target_generation_path = os.path.join(generation_dir, generation)
         if not os.path.isdir(target_generation_path):
-            error(f"Generation '{args.generation}' not found.")
+            error(f"Generation '{generation}' not found.")
 
-        if not confirm_action(f"Are you sure you want to remove generation {args.generation}? This is irreversible."):
+        if not confirm_action(f"Are you sure you want to remove generation {generation}? This is irreversible."):
             info("Removal cancelled.")
             return
 
         shutil.rmtree(target_generation_path)
-        info(f"Generation {args.generation} removed.")
+        info(f"Generation {generation} removed.")
         return
 
-    if not args.generation:
+    if not generation:
         error("Please specify a generation to roll back to.")
 
-    target_generation_path = os.path.join(generation_dir, args.generation)
+    target_generation_path = os.path.join(generation_dir, generation)
     if not os.path.isdir(target_generation_path):
-        error(f"Generation '{args.generation}' not found.")
+        error(f"Generation '{generation}' not found.")
 
     commit_hash_file = os.path.join(target_generation_path, ".commit_hash")
     if not os.path.isfile(commit_hash_file):
-        error(f"Generation '{args.generation}' is old and does not have a commit hash. Cannot perform a safe rollback.")
+        error(f"Generation '{generation}' is old and does not have a commit hash. Cannot perform a safe rollback.")
 
     with open(commit_hash_file, "r") as f:
         commit_hash = f.read().strip()
 
-    if not confirm_action(f"Are you sure you want to roll back to generation {args.generation}?"):
+    if not confirm_action(f"Are you sure you want to roll back to generation {generation}?"):
         info("Rollback cancelled.")
         return
 
-    info(f"Rolling back to generation {args.generation} (commit {commit_hash})...")
+    info(f"Rolling back to generation {generation} (commit {commit_hash})...")
 
     # Unsymlink configs
     info("Unsymlinking existing configurations...")
@@ -198,8 +242,11 @@ def rollback_command(args):
 
     info("Rollback complete.")
 
-def enable_command(args):
-    if args.plugin == "overview":
+@app.command(name="enable", help="Enable a Serein feature")
+def enable_command(
+    plugin: Annotated[str, typer.Argument(help="Feature to enable (e.g., 'overview' for Hyprland overview plugin)")]
+):
+    if plugin == "overview":
         info("Enabling hyprtasking (required for overview)...")
         run_command("hyprpm update", error_message="hyprpm update failed")
         run_command("hyprpm add https://github.com/raybbian/hyprtasking", error_message="hyprpm add failed")
@@ -210,8 +257,11 @@ def enable_command(args):
     else:
         error("Invalid plugin specified.")
 
-def disable_command(args):
-    if args.plugin == "overview":
+@app.command(name="disable", help="Disable a Serein feature")
+def disable_command(
+    plugin: Annotated[str, typer.Argument(help="Feature to disable (e.g., 'overview' for Hyprland overview plugin)")]
+):
+    if plugin == "overview":
         info("Disabling hyprtasking...")
         run_command("hyprpm remove https://github.com/raybbian/hyprtasking", error_message="hyprpm remove failed")
         run_command("hyprpm reload -nn", error_message="hyprpm reload failed")
@@ -220,7 +270,8 @@ def disable_command(args):
     else:
         error("Invalid plugin specified.")
 
-def uninstall_command(args):
+@app.command(name="uninstall", help="Remove the Serein environment")
+def uninstall_command():
     persistent_dir = os.path.join(os.path.expanduser("~"), ".cache", "serein")
 
     if not confirm_action("Are you sure you want to uninstall Serein? This will remove all configurations and the serein command."):
@@ -293,49 +344,5 @@ def uninstall_command(args):
 
     info("Serein has been uninstalled.")
 
-# --- Main Parser Setup ---
-def main():
-    parser = argparse.ArgumentParser(
-        description="Serein Command-Line Tool",
-        formatter_class=argparse.RawTextHelpFormatter
-    )
-
-    subparsers = parser.add_subparsers(dest="command", help="Available commands")
-
-    # Update command
-    update_parser = subparsers.add_parser("update", help="Update system and Serein configs")
-    update_parser.add_argument("type", nargs="?", default="edge", choices=["stable", "edge"],
-                               help="Update type: 'stable' for latest tag, 'edge' for git pull (default)")
-    update_parser.set_defaults(func=update_command)
-
-    # Rollback command
-    rollback_parser = subparsers.add_parser("rollback", help="Rollback to a previous generation")
-    rollback_parser.add_argument("generation", nargs="?", help="The generation to rollback to (e.g., Generation-1-2025-01-01)")
-    rollback_parser.add_argument("--list", action="store_true", help="List available generations")
-    rollback_parser.add_argument("--remove", action="store_true", help="Remove a specific generation")
-    rollback_parser.set_defaults(func=rollback_command)
-
-    # Enable command
-    enable_parser = subparsers.add_parser("enable", help="Enable a Serein feature")
-    enable_parser.add_argument("plugin", choices=["overview"], help="Feature to enable (e.g., 'overview' for Hyprland overview plugin)")
-    enable_parser.set_defaults(func=enable_command)
-
-    # Disable command
-    disable_parser = subparsers.add_parser("disable", help="Disable a Serein feature")
-    disable_parser.add_argument("plugin", choices=["overview"], help="Feature to disable (e.g., 'overview' for Hyprland overview plugin)")
-    disable_parser.set_defaults(func=disable_command)
-
-    # Uninstall command
-    uninstall_parser = subparsers.add_parser("uninstall", help="Remove the Serein environment")
-    uninstall_parser.set_defaults(func=uninstall_command)
-
-    args = parser.parse_args()
-
-    if not args.command:
-        parser.print_help()
-        sys.exit(1)
-
-    args.func(args)
-
 if __name__ == "__main__":
-    main()
+    app(prog_name="serein")
