@@ -134,7 +134,7 @@ run_stage_2() {
     python3 -m venv "$REPO_ROOT/.venv" || error "Failed to create Python virtual environment."
     source "$REPO_ROOT/.venv/bin/activate" || error "Failed to activate virtual environment."
     pip install --upgrade pip || error "Failed to upgrade pip."
-    pip install "typer[all]" typing-extensions || error "Failed to install Python dependencies."
+    pip install "typer[all]" typing-extensions inquirerpy || error "Failed to install Python dependencies."
     deactivate # Deactivate the venv after installation
 
     # --- Installation Type ---
