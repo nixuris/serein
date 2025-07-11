@@ -36,8 +36,41 @@ from InquirerPy import inquirer
 from InquirerPy.utils import get_style
 
 import resymlink
+import json
 
 # --- Helper Functions ---
+
+def get_generations_path():
+    """Returns the path to the generations.json file."""
+    return os.path.join(get_persistent_dir(), "generations.json")
+
+def read_generations():
+    """Reads and parses the generations.json file. Creates it if it doesn't exist."""
+    generations_path = get_generations_path()
+    if not os.path.exists(generations_path):
+        # If the file doesn't exist, create it with an empty list
+        with open(generations_path, "w") as f:
+            json.dump({"generations": []}, f, indent=4)
+        return []
+    try:
+        with open(generations_path, "r") as f:
+            data = json.load(f)
+            # Basic validation
+            if "generations" in data and isinstance(data["generations"], list):
+                return data["generations"]
+            else:
+                # Handle corrupted or invalid format
+                error("generations.json is malformed. Please fix or delete it.")
+                return [] # Should not be reached due to error()
+    except (json.JSONDecodeError, FileNotFoundError):
+        error("Could not read or parse generations.json. Please fix or delete it.")
+        return [] # Should not be reached due to error()
+
+def write_generations(generations_data):
+    """Writes the given data to the generations.json file."""
+    generations_path = get_generations_path()
+    with open(generations_path, "w") as f:
+        json.dump({"generations": generations_data}, f, indent=4)
 def info(message):
     """Displays an informational message."""
     typer.echo(typer.style(f"[INFO] {message}", fg=typer.colors.BLUE, bold=True))
@@ -67,14 +100,23 @@ app = typer.Typer(name="serein", help="Serein Command-Line Tool", add_completion
 
 # --- Command Implementations ---
 
+def is_persistent_install():
+    """Checks if Serein is installed persistently."""
+    return os.path.isdir(os.path.join(os.path.expanduser("~"), ".cache", "serein", ".git"))
+
+def get_persistent_dir():
+    """Returns the persistent directory path."""
+    return os.path.join(os.path.expanduser("~"), ".cache", "serein")
+
 @app.command(name="update", help="Update system and Serein configs")
 def update_command(
-    update_type: Annotated[Optional[str], typer.Argument(help="Update type: 'stable' for latest tag, 'edge' for git pull (default)")] = "edge"
+    update_type: Annotated[Optional[str], typer.Argument(help="Update type: 'stable' for latest tag, 'edge' for git pull (default)")] = "edge",
+    force: Annotated[bool, typer.Option("--force", "-f", help="Force update even if on the latest version.")] = False
 ):
-    persistent_dir = os.path.join(os.path.expanduser("~"), ".cache", "serein")
-
-    if not os.path.isdir(persistent_dir) or not os.path.isdir(os.path.join(persistent_dir, ".git")):
-        error("Serein not installed persistently. Cannot update.")
+    if not is_persistent_install():
+        error("Serein is not installed persistently. Cannot update.")
+    
+    persistent_dir = get_persistent_dir()
 
     info("Checking for rsync...")
     if not shutil.which("rsync"):
@@ -110,7 +152,7 @@ def update_command(
         latest_tag, _, _ = run_command("git describe --tags $(git rev-list --tags --max-count=1)", error_message="Failed to get latest tag")
         current_tag, _, _ = run_command("git describe --tags", error_message="Failed to get current tag")
 
-        if current_tag == latest_tag:
+        if current_tag == latest_tag and not force:
             info("You are already on the latest stable release.")
             os.chdir(original_cwd) # Change back before exiting
             shutil.rmtree(temp_backup_dir) # Clean up temp
@@ -125,7 +167,7 @@ def update_command(
     after_hash, _, _ = run_command("git rev-parse HEAD", error_message="Failed to get new git hash")
 
     # If no changes, no new generation needed
-    if before_hash == after_hash:
+    if before_hash == after_hash and not force:
         info("Already up to date. No new generation created.")
         os.chdir(original_cwd) # Change back before exiting
         shutil.rmtree(temp_backup_dir) # Clean up temp
@@ -135,26 +177,14 @@ def update_command(
     os.chdir(original_cwd)
 
     # Create generation backup from the *temporary backup* (pre-update state)
-    generation_dir = os.path.join(persistent_dir, "generations")
-    os.makedirs(generation_dir, exist_ok=True)
+    generations = read_generations()
+    last_gen_id = generations[-1]["id"] if generations else 0
+    new_gen_id = last_gen_id + 1
 
-    # Find the last generation number
-    last_gen_num = 0
-    for entry in os.listdir(generation_dir):
-        if entry.startswith("Generation-") and os.path.isdir(os.path.join(generation_dir, entry)):
-            try:
-                # Extract number from "Generation-X-YYYY-MM-DD"
-                parts = entry.split('-')
-                if len(parts) >= 2:
-                    num = int(parts[1])
-                    if num > last_gen_num:
-                        last_gen_num = num
-            except ValueError:
-                continue # Ignore directories that don't match the pattern
+    backup_dir = os.path.join(get_persistent_dir(), "generations", str(new_gen_id))
+    os.makedirs(backup_dir, exist_ok=True)
 
-    generation_num = last_gen_num + 1
-    backup_dir = os.path.join(generation_dir, f"Generation-{generation_num}-{datetime.now().strftime('%Y-%m-%d')}")
-    info(f"Creating generation backup of previous state at {backup_dir}...")
+    info(f"Creating generation backup {new_gen_id} of previous state at {backup_dir}...")
 
     # Use rsync to copy files from the *temporary backup* (pre-update state)
     rsync_command = [
@@ -167,9 +197,16 @@ def update_command(
     ]
     _, _, _ = run_command(" ".join(rsync_command), error_message="Failed to create generation backup")
 
-    # Store the *before_hash* for rollback
-    with open(os.path.join(backup_dir, ".commit_hash"), "w") as f:
-        f.write(before_hash) # Store the hash *before* the update for rollback purposes
+    # Add new generation to the JSON file
+    new_generation = {
+        "id": new_gen_id,
+        "date": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        "commit_hash": before_hash,
+        "description": f"Update to {after_hash[:7]}",
+        "archived": False
+    }
+    generations.append(new_generation)
+    write_generations(generations)
     
     shutil.rmtree(temp_backup_dir) # Clean up the temporary backup directory
 
@@ -185,18 +222,17 @@ def update_command(
 
 @app.command(name="rollback", help="Rollback to a previous generation")
 def rollback_command(
-    # No arguments for interactive mode
+    no_confirm: Annotated[bool, typer.Option("--no-confirm", "-y", help="Skip confirmation prompts.")] = False,
+    keep_backup: Annotated[bool, typer.Option("--keep-backup", "-k", help="Keep backup files when deleting a generation.")] = False
 ):
-    persistent_dir = os.path.join(os.path.expanduser("~"), ".cache", "serein")
-    generation_dir = os.path.join(persistent_dir, "generations")
-
-    # Get available generations
-    available_generations = []
-    if os.path.isdir(generation_dir):
-        for entry in os.listdir(generation_dir):
-            if entry.startswith("Generation-") and os.path.isdir(os.path.join(generation_dir, entry)):
-                available_generations.append(entry)
-    available_generations.sort(reverse=True) # Sort newest first
+    if not is_persistent_install():
+        error("Serein is not installed persistently. Cannot rollback.")
+        
+    persistent_dir = get_persistent_dir()
+    generations = read_generations()
+    
+    # Filter out archived generations for the user to choose from
+    available_generations = [gen for gen in generations if not gen.get("archived", False)]
 
     if not available_generations:
         info("No generations found to rollback or remove.")
@@ -214,61 +250,41 @@ def rollback_command(
         ).execute()
 
         if action == "rollback":
-            selected_generation = inquirer.select(
+            choice_to_generation = { 
+                f'{gen["id"]}: {gen["date"]} - {gen["description"]}': gen 
+                for gen in reversed(available_generations) 
+            }
+
+            selected_choice = inquirer.select(
                 message="Select a generation to rollback to:",
-                choices=available_generations,
-                default=available_generations[0] if available_generations else None,
+                choices=list(choice_to_generation.keys()),
                 style=get_style({"pointer": "#673ab7 bold", "question": "#673ab7 bold"}),
             ).execute()
             
-            if selected_generation is None: # User escaped
+            if selected_choice is None: # User escaped
                 info("Rollback cancelled.")
                 return
 
-            target_generation_path = os.path.join(generation_dir, selected_generation)
-            if not os.path.isdir(target_generation_path):
-                error(f"Generation '{selected_generation}' not found.")
+            selected_generation = choice_to_generation[selected_choice]
+            commit_hash = selected_generation["commit_hash"]
 
-            commit_hash_file = os.path.join(target_generation_path, ".commit_hash")
-            if not os.path.isfile(commit_hash_file):
-                error(f"Generation '{selected_generation}' is old and does not have a commit hash. Cannot perform a safe rollback.")
-
-            with open(commit_hash_file, "r") as f:
-                commit_hash = f.read().strip()
-
-            if not confirm_action(f"Are you sure you want to roll back to generation {selected_generation}?"):
+            if not no_confirm and not confirm_action(f'Are you sure you want to roll back to generation {selected_generation["id"]}'):
                 info("Rollback cancelled.")
                 return
 
-            info(f"Rolling back to generation {selected_generation} (commit {commit_hash})...")
+            info(f'Rolling back to generation {selected_generation["id"]} (commit {commit_hash})...')
 
             # Unsymlink configs
             info("Unsymlinking existing configurations...")
             resymlink.unsymlink_configs(persistent_dir)
-
-            # Ensure target directories in ~/.config are clean before symlinking
-            info("Ensuring target configuration directories are clean...")
-            configs_to_manage = resymlink.get_configs_to_manage(persistent_dir)
-            for cfg in configs_to_manage:
-                target_path = os.path.join(resymlink.CONFIG_DIR, cfg)
-                if os.path.isdir(target_path) and not os.path.islink(target_path):
-                    if confirm_action(f"Warning: {target_path} exists as a real directory (not a symlink). Remove it to allow symlinking?"):
-                        shutil.rmtree(target_path)
-                        info(f"Removed real directory: {target_path}")
-                    else:
-                        error(f"Cannot symlink {cfg}. {target_path} exists as a real directory and user chose not to remove it.")
 
             # Restore git state by resetting the branch to the specific commit
             info(f"Resetting Serein to commit {commit_hash}...")
             original_cwd = os.getcwd()
             os.chdir(persistent_dir)
 
-            # Use git reset --hard to revert to the specific commit
-            # This will discard all current changes and set the HEAD to the specified commit
-            _, _, _ = run_command(f"git reset --hard {commit_hash}", error_message="git reset failed. The repository might be in an unexpected state.")
-            
-            # Clean the repository of any untracked files that might interfere
-            _, _, _ = run_command("git clean -fd", error_message="git clean failed. Could not remove untracked files.")
+            _, _, _ = run_command(f"git reset --hard {commit_hash}", error_message="git reset failed.")
+            _, _, _ = run_command("git clean -fd", error_message="git clean failed.")
 
             os.chdir(original_cwd)
 
@@ -279,27 +295,42 @@ def rollback_command(
             info("Rollback complete.")
 
         elif action == "delete":
-            selected_generation = inquirer.select(
+            choice_to_generation = { 
+                f'{gen["id"]}: {gen["date"]} - {gen["description"]}': gen 
+                for gen in reversed(available_generations) 
+            }
+
+            selected_choice = inquirer.select(
                 message="Select a generation to remove:",
-                choices=available_generations,
-                default=available_generations[0] if available_generations else None,
+                choices=list(choice_to_generation.keys()),
                 style=get_style({"pointer": "#673ab7 bold", "question": "#673ab7 bold"}),
             ).execute()
 
-            if selected_generation is None: # User escaped
+            if selected_choice is None: # User escaped
                 info("Removal cancelled.")
                 return
 
-            target_generation_path = os.path.join(generation_dir, selected_generation)
-            if not os.path.isdir(target_generation_path):
-                error(f"Generation '{selected_generation}' not found.")
-                
-            if not confirm_action(f"Are you sure you want to remove generation {selected_generation}? This is irreversible."):
+            selected_generation = choice_to_generation[selected_choice]
+            gen_id_to_remove = selected_generation["id"]
+
+            if not no_confirm and not confirm_action(f"Are you sure you want to remove generation {gen_id_to_remove}?"):
                 info("Removal cancelled.")
                 return
 
-            shutil.rmtree(target_generation_path)
-            info(f"Generation {selected_generation} removed.")
+            # Find the generation in the original list and mark it as archived
+            for gen in generations:
+                if gen["id"] == gen_id_to_remove:
+                    gen["archived"] = True
+                    break
+            
+            write_generations(generations)
+            info(f"Generation {gen_id_to_remove} has been archived and will no longer appear in the list.")
+
+            if not keep_backup:
+                backup_dir_to_remove = os.path.join(get_persistent_dir(), "generations", str(gen_id_to_remove))
+                if os.path.isdir(backup_dir_to_remove):
+                    shutil.rmtree(backup_dir_to_remove)
+                    info(f"Removed backup directory for generation {gen_id_to_remove}.")
 
     except KeyboardInterrupt:
         info("Operation cancelled by user.")
@@ -332,18 +363,20 @@ def disable_command(
 
 @app.command(name="uninstall", help="Remove the Serein environment")
 def uninstall_command():
-    persistent_dir = os.path.join(os.path.expanduser("~"), ".cache", "serein")
-
     if not confirm_action("Are you sure you want to uninstall Serein? This will remove all configurations and the serein command."):
         info("Uninstallation cancelled.")
         return
 
+    if is_persistent_install():
+        persistent_uninstall()
+    else:
+        one_time_uninstall()
+
+def persistent_uninstall():
+    persistent_dir = get_persistent_dir()
     remove_packages = confirm_action("Do you want to remove all installed packages as well?")
 
-    info("Uninstalling Serein...")
-
-    if not os.path.isdir(persistent_dir):
-        error("Serein is not installed persistently.")
+    info("Uninstalling Serein (Persistent Mode)...")
 
     if remove_packages:
         info("Removing installed packages...")
@@ -364,7 +397,6 @@ def uninstall_command():
             info("Minimal installation detected. Removing minimal packages...")
         
         if packages_to_remove:
-            # Filter out empty strings from the list
             packages_to_remove = [pkg for pkg in packages_to_remove if pkg.strip()]
             if packages_to_remove:
                 _, _, _ = run_command(f"paru -Rns --noconfirm {' '.join(packages_to_remove)}", error_message="Failed to remove packages")
@@ -376,18 +408,53 @@ def uninstall_command():
     info("Unsymlinking configurations...")
     resymlink.unsymlink_configs(persistent_dir)
 
-    # Remove serein executable (requires sudo)
+    # Remove serein executable
     serein_bin_path = "/usr/local/bin/serein"
     if os.path.exists(serein_bin_path):
         info(f"Removing {serein_bin_path}. This may require sudo privileges.")
         _, _, _ = run_command(f"sudo rm {serein_bin_path}", error_message=f"Failed to remove {serein_bin_path}. Please remove it manually if necessary.")
 
     # Remove persistent directory
-    if os.path.isdir(persistent_dir):
-        info(f"Removing Serein persistent directory: {persistent_dir}")
-        shutil.rmtree(persistent_dir)
+    info(f"Removing Serein persistent directory: {persistent_dir}")
+    shutil.rmtree(persistent_dir)
 
-    # Remove other cache directories
+    cleanup_cache()
+    info("Serein has been uninstalled.")
+
+def one_time_uninstall():
+    info("Uninstalling Serein (One-Time Mode)...")
+
+    # For one-time install, we assume the user might want to remove the copied configs
+    # We need a way to know which configs were copied. We'll assume minimal for now.
+    # A better approach would be a marker file created during installation.
+    
+    info("Removing configuration directories...")
+    # This is a destructive action, so we should be careful and ask the user.
+    configs_to_remove = resymlink.CONFIGS_MINIMAL # Assume minimal
+    # In the future, we can check for a marker file to see if it was a full install.
+    
+    for cfg in configs_to_remove:
+        target_path = os.path.join(resymlink.CONFIG_DIR, cfg)
+        if os.path.isdir(target_path) and not os.path.islink(target_path):
+            if confirm_action(f"Found config directory '{cfg}'. Do you want to remove it?"):
+                try:
+                    shutil.rmtree(target_path)
+                    info(f"Removed directory: {target_path}")
+                except OSError as e:
+                    error(f"Failed to remove {target_path}: {e}")
+    
+    # Remove serein executable
+    serein_bin_path = "/usr/local/bin/serein"
+    if os.path.exists(serein_bin_path):
+        info(f"Removing {serein_bin_path}. This may require sudo privileges.")
+        _, _, _ = run_command(f"sudo rm {serein_bin_path}", error_message=f"Failed to remove {serein_bin_path}. Please remove it manually if necessary.")
+
+    cleanup_cache()
+    info("Serein has been uninstalled.")
+
+def cleanup_cache():
+    """Removes common cache directories."""
+    info("Cleaning up cache directories...")
     rofi_cache = os.path.join(os.path.expanduser("~"), ".cache", "rofi")
     rofi_icon_cache = os.path.join(os.path.expanduser("~"), ".cache", "rofi_icon")
     user_conf = os.path.join(os.path.expanduser("~"), "user.conf")
@@ -402,7 +469,25 @@ def uninstall_command():
         info(f"Removing user.conf: {user_conf}")
         os.remove(user_conf)
 
-    info("Serein has been uninstalled.")
 
 if __name__ == "__main__":
+    # Always add commands that work for both installation types
+    app.command(name="uninstall")(uninstall_command)
+    app.command(name="disable")(disable_command)
+    # The enable command needs to be registered in a way that Typer can handle it.
+    # A simple way is to create a small wrapper or directly register it if it follows the Typer model.
+    # For now, let's assume we need to wrap it or adjust its definition.
+    # A simplified approach:
+    @app.command(name="enable", help="Enable a Serein feature")
+    def enable_command_wrapper(plugin: Annotated[str, typer.Argument(help="Feature to enable (e.g., 'overview' for Hyprland overview plugin)")]):
+        class Args:
+            def __init__(self, plugin):
+                self.plugin = plugin
+        enable_command(Args(plugin))
+
+    # Conditionally add commands that only work for persistent installations
+    if is_persistent_install():
+        app.command(name="update")(update_command)
+        app.command(name="rollback")(rollback_command)
+
     app(prog_name="serein")
