@@ -32,6 +32,8 @@ if site_packages_path and site_packages_path not in sys.path:
 # --- End dynamic .venv setup ---
 
 import typer
+from InquirerPy import inquirer
+from InquirerPy.utils import get_style
 
 import resymlink
 
@@ -45,15 +47,17 @@ def error(message):
     typer.echo(typer.style(f"[ERROR] {message}", fg=typer.colors.RED, bold=True), err=True)
     sys.exit(1)
 
-def run_command(command, cwd=None, check_error=True, error_message="Command failed"):
-    """Runs a shell command and handles errors."""
+def run_command(command, cwd=None, check_error=True, error_message="Command failed", capture_output=True):
+    """Runs a shell command and handles errors. Returns stdout, stderr, and exit_code."""
     try:
-        result = subprocess.run(command, cwd=cwd, check=check_error, shell=True, capture_output=True, text=True)
-        return result.stdout.strip()
-    except subprocess.CalledProcessError as e:
-        error(f"{error_message}: {e.stderr.strip()}")
+        result = subprocess.run(command, cwd=cwd, check=False, shell=True, capture_output=capture_output, text=True)
+        if check_error and result.returncode != 0:
+            error(f"{error_message} (Exit Code: {result.returncode}):\nStdout: {result.stdout.strip()}\nStderr: {result.stderr.strip()}")
+        return result.stdout.strip(), result.stderr.strip(), result.returncode
     except FileNotFoundError:
-        error(f"Command not found: {command[0]}")
+        error(f"Command not found: {command.split()[0]}")
+    except Exception as e:
+        error(f"An unexpected error occurred while running command: {command}\nError: {e}")
 
 def confirm_action(prompt):
     """Prompts the user for confirmation."""
@@ -77,7 +81,6 @@ def update_command(
         error("rsync is not installed. Please install it to continue.")
 
     original_cwd = os.getcwd()
-    os.chdir(persistent_dir)
 
     # Create a temporary backup of the current persistent_dir (pre-update state)
     temp_backup_dir = os.path.join(os.path.expanduser("~"), ".cache", "serein_temp_backup")
@@ -93,19 +96,19 @@ def update_command(
         f"{persistent_dir}/", # Source directory (current state)
         f"{temp_backup_dir}/" # Destination directory
     ]
-    run_command(" ".join(rsync_temp_command), error_message="Failed to create temporary backup")
+    _, _, _ = run_command(" ".join(rsync_temp_command), error_message="Failed to create temporary backup")
 
     # Change to persistent_dir for git operations
     os.chdir(persistent_dir)
 
-    before_hash = run_command("git rev-parse HEAD", error_message="Failed to get current git hash")
+    before_hash, _, _ = run_command("git rev-parse HEAD", error_message="Failed to get current git hash")
 
     # Perform the git update
     if update_type == "stable":
         info("Checking for stable updates...")
-        run_command("git fetch --tags", error_message="git fetch failed")
-        latest_tag = run_command("git describe --tags $(git rev-list --tags --max-count=1)", error_message="Failed to get latest tag")
-        current_tag = run_command("git describe --tags", error_message="Failed to get current tag")
+        _, _, _ = run_command("git fetch --tags", error_message="git fetch failed")
+        latest_tag, _, _ = run_command("git describe --tags $(git rev-list --tags --max-count=1)", error_message="Failed to get latest tag")
+        current_tag, _, _ = run_command("git describe --tags", error_message="Failed to get current tag")
 
         if current_tag == latest_tag:
             info("You are already on the latest stable release.")
@@ -114,12 +117,12 @@ def update_command(
             sys.exit(0)
 
         info(f"Updating to the latest stable release ({latest_tag})...")
-        run_command(f"git checkout {latest_tag}", error_message="git checkout failed. You may have local changes. Please stash or commit them first.")
+        _, _, _ = run_command(f"git checkout {latest_tag}", error_message="git checkout failed. You may have local changes. Please stash or commit them first.")
     else:
         info("Updating to the bleeding edge (git pull)...")
-        run_command("git pull", error_message="git pull failed. You may have local changes. Please stash or commit them first.")
+        _, _, _ = run_command("git pull", error_message="git pull failed. You may have local changes. Please stash or commit them first.")
 
-    after_hash = run_command("git rev-parse HEAD", error_message="Failed to get new git hash")
+    after_hash, _, _ = run_command("git rev-parse HEAD", error_message="Failed to get new git hash")
 
     # If no changes, no new generation needed
     if before_hash == after_hash:
@@ -162,7 +165,7 @@ def update_command(
         f"{temp_backup_dir}/", # Source directory (pre-update state from temp)
         f"{backup_dir}/"      # Destination directory
     ]
-    run_command(" ".join(rsync_command), error_message="Failed to create generation backup")
+    _, _, _ = run_command(" ".join(rsync_command), error_message="Failed to create generation backup")
 
     # Store the *before_hash* for rollback
     with open(os.path.join(backup_dir, ".commit_hash"), "w") as f:
@@ -182,90 +185,151 @@ def update_command(
 
 @app.command(name="rollback", help="Rollback to a previous generation")
 def rollback_command(
-    generation: Annotated[Optional[str], typer.Argument(help="The generation to rollback to (e.g., Generation-1-2025-01-01)")] = None,
-    list_generations: Annotated[bool, typer.Option("--list", "-l", help="List available generations")] = False,
-    remove: Annotated[bool, typer.Option("--remove", "-r", help="Remove a specific generation")] = False
+    # No arguments for interactive mode
 ):
     persistent_dir = os.path.join(os.path.expanduser("~"), ".cache", "serein")
     generation_dir = os.path.join(persistent_dir, "generations")
 
-    if list_generations:
-        info("Available generations:")
-        if not os.path.isdir(generation_dir) or not os.listdir(generation_dir):
-            typer.echo("No generations found.")
-            return
-        for gen in sorted(os.listdir(generation_dir)):
-            if os.path.isdir(os.path.join(generation_dir, gen)):
-                typer.echo(f"- {gen}")
+    # Get available generations
+    available_generations = []
+    if os.path.isdir(generation_dir):
+        for entry in os.listdir(generation_dir):
+            if entry.startswith("Generation-") and os.path.isdir(os.path.join(generation_dir, entry)):
+                available_generations.append(entry)
+    available_generations.sort(reverse=True) # Sort newest first
+
+    if not available_generations:
+        info("No generations found to rollback or remove.")
         return
 
-    if remove:
-        if not generation:
-            error("Please specify a generation to remove.")
-        target_generation_path = os.path.join(generation_dir, generation)
-        if not os.path.isdir(target_generation_path):
-            error(f"Generation '{generation}' not found.")
+    try:
+        action = inquirer.select(
+            message="Choose an action:",
+            choices=[
+                {"name": "Rollback to a generation", "value": "rollback"},
+                {"name": "Delete a generation", "value": "delete"},
+            ],
+            default="rollback",
+            style=get_style({"pointer": "#673ab7 bold", "question": "#673ab7 bold"}),
+        ).execute()
 
-        if not confirm_action(f"Are you sure you want to remove generation {generation}? This is irreversible."):
-            info("Removal cancelled.")
-            return
+        if action == "rollback":
+            selected_generation = inquirer.select(
+                message="Select a generation to rollback to:",
+                choices=available_generations,
+                default=available_generations[0] if available_generations else None,
+                style=get_style({"pointer": "#673ab7 bold", "question": "#673ab7 bold"}),
+            ).execute()
+            
+            if selected_generation is None: # User escaped
+                info("Rollback cancelled.")
+                return
 
-        shutil.rmtree(target_generation_path)
-        info(f"Generation {generation} removed.")
-        return
+            target_generation_path = os.path.join(generation_dir, selected_generation)
+            if not os.path.isdir(target_generation_path):
+                error(f"Generation '{selected_generation}' not found.")
 
-    if not generation:
-        error("Please specify a generation to roll back to.")
+            commit_hash_file = os.path.join(target_generation_path, ".commit_hash")
+            if not os.path.isfile(commit_hash_file):
+                error(f"Generation '{selected_generation}' is old and does not have a commit hash. Cannot perform a safe rollback.")
 
-    target_generation_path = os.path.join(generation_dir, generation)
-    if not os.path.isdir(target_generation_path):
-        error(f"Generation '{generation}' not found.")
+            with open(commit_hash_file, "r") as f:
+                commit_hash = f.read().strip()
 
-    commit_hash_file = os.path.join(target_generation_path, ".commit_hash")
-    if not os.path.isfile(commit_hash_file):
-        error(f"Generation '{generation}' is old and does not have a commit hash. Cannot perform a safe rollback.")
+            if not confirm_action(f"Are you sure you want to roll back to generation {selected_generation}?"):
+                info("Rollback cancelled.")
+                return
 
-    with open(commit_hash_file, "r") as f:
-        commit_hash = f.read().strip()
+            info(f"Rolling back to generation {selected_generation} (commit {commit_hash})...")
 
-    if not confirm_action(f"Are you sure you want to roll back to generation {generation}?"):
-        info("Rollback cancelled.")
-        return
+            # Unsymlink configs
+            info("Unsymlinking existing configurations...")
+            resymlink.unsymlink_configs(persistent_dir)
 
-    info(f"Rolling back to generation {generation} (commit {commit_hash})...")
+            # Ensure target directories in ~/.config are clean before symlinking
+            info("Ensuring target configuration directories are clean...")
+            configs_to_manage = resymlink.get_configs_to_manage(persistent_dir)
+            for cfg in configs_to_manage:
+                target_path = os.path.join(resymlink.CONFIG_DIR, cfg)
+                if os.path.isdir(target_path) and not os.path.islink(target_path):
+                    if confirm_action(f"Warning: {target_path} exists as a real directory (not a symlink). Remove it to allow symlinking?"):
+                        shutil.rmtree(target_path)
+                        info(f"Removed real directory: {target_path}")
+                    else:
+                        error(f"Cannot symlink {cfg}. {target_path} exists as a real directory and user chose not to remove it.")
 
-    # Unsymlink configs
-    info("Unsymlinking existing configurations...")
-    resymlink.unsymlink_configs(persistent_dir)
+            # Restore git state by copying files from the backup directory
+            info(f"Restoring files from backup directory: {target_generation_path}...")
+            # First, clean the persistent_dir (excluding .git and generations)
+            for item in os.listdir(persistent_dir):
+                if item not in [".git", "generations"]:
+                    item_path = os.path.join(persistent_dir, item)
+                    if os.path.isdir(item_path):
+                        shutil.rmtree(item_path)
+                    else:
+                        os.remove(item_path)
 
-    # Restore git state
-    original_cwd = os.getcwd()
-    os.chdir(persistent_dir)
+            # Now copy from backup
+            restore_command = [
+                "rsync", "-a",
+                f"{target_generation_path}/", # Source (backup)
+                f"{persistent_dir}/"          # Destination (persistent_dir)
+            ]
+            _, _, _ = run_command(" ".join(restore_command), error_message="Failed to restore files from backup.")
 
-    # Check for uncommitted changes
-    if run_command("git diff-index --quiet HEAD --", check_error=False) != "":
-        error("You have uncommitted changes in your Serein directory. Please commit or stash them before rolling back.")
+            # After restoring files, ensure the git repository is at the correct commit
+            original_cwd = os.getcwd()
+            os.chdir(persistent_dir)
 
-    run_command(f"git checkout {commit_hash}", error_message="git checkout failed. The repository might be in an unexpected state.")
-    os.chdir(original_cwd)
+            # Check for uncommitted changes (shouldn't be any after rsync, but good to be safe)
+            _, _, exit_code = run_command("git diff-index --quiet HEAD --", check_error=False)
+            if exit_code != 0:
+                error("You have uncommitted changes in your Serein directory after file restore. Please commit or stash them before rolling back.")
 
-    # Resymlink configs
-    info("Symlinking new configurations...")
-    resymlink.symlink_configs(persistent_dir)
+            _, _, _ = run_command(f"git checkout {commit_hash}", error_message="git checkout failed. The repository might be in an unexpected state.")
+            os.chdir(original_cwd)
 
-    info("Rollback complete.")
+            # Resymlink configs
+            info("Symlinking new configurations...")
+            resymlink.symlink_configs(persistent_dir)
 
-@app.command(name="enable", help="Enable a Serein feature")
-def enable_command(
-    plugin: Annotated[str, typer.Argument(help="Feature to enable (e.g., 'overview' for Hyprland overview plugin)")]
-):
-    if plugin == "overview":
+            info("Rollback complete.")
+
+        elif action == "delete":
+            selected_generation = inquirer.select(
+                message="Select a generation to remove:",
+                choices=available_generations,
+                default=available_generations[0] if available_generations else None,
+                style=get_style({"pointer": "#673ab7 bold", "question": "#673ab7 bold"}),
+            ).execute()
+
+            if selected_generation is None: # User escaped
+                info("Removal cancelled.")
+                return
+
+            target_generation_path = os.path.join(generation_dir, selected_generation)
+            if not os.path.isdir(target_generation_path):
+                error(f"Generation '{selected_generation}' not found.")
+                
+            if not confirm_action(f"Are you sure you want to remove generation {selected_generation}? This is irreversible."):
+                info("Removal cancelled.")
+                return
+
+            shutil.rmtree(target_generation_path)
+            info(f"Generation {selected_generation} removed.")
+
+    except KeyboardInterrupt:
+        info("Operation cancelled by user.")
+        sys.exit(0)
+
+def enable_command(args):
+    if args.plugin == "overview":
         info("Enabling hyprtasking (required for overview)...")
-        run_command("hyprpm update", error_message="hyprpm update failed")
-        run_command("hyprpm add https://github.com/raybbian/hyprtasking", error_message="hyprpm add failed")
-        run_command("hyprpm enable hyprtasking", error_message="hyprpm enable failed")
-        run_command("hyprpm reload -nn", error_message="hyprpm reload failed")
-        run_command("hyprctl reload", error_message="hyprctl reload failed")
+        _, _, _ = run_command("hyprpm update", error_message="hyprpm update failed")
+        _, _, _ = run_command("hyprpm add https://github.com/raybbian/hyprtasking", error_message="hyprpm add failed")
+        _, _, _ = run_command("hyprpm enable hyprtasking", error_message="hyprpm enable failed")
+        _, _, _ = run_command("hyprpm reload -nn", error_message="hyprpm reload failed")
+        _, _, _ = run_command("hyprctl reload", error_message="hyprctl reload failed")
         info("Hyprtasking enabled.")
     else:
         error("Invalid plugin specified.")
@@ -276,9 +340,9 @@ def disable_command(
 ):
     if plugin == "overview":
         info("Disabling hyprtasking...")
-        run_command("hyprpm remove https://github.com/raybbian/hyprtasking", error_message="hyprpm remove failed")
-        run_command("hyprpm reload -nn", error_message="hyprpm reload failed")
-        run_command("hyprctl reload", error_message="hyprctl reload failed")
+        _, _, _ = run_command("hyprpm remove https://github.com/raybbian/hyprtasking", error_message="hyprpm remove failed")
+        _, _, _ = run_command("hyprpm reload -nn", error_message="hyprpm reload failed")
+        _, _, _ = run_command("hyprctl reload", error_message="hyprctl reload failed")
         info("Hyprtasking disabled.")
     else:
         error("Invalid plugin specified.")
@@ -320,7 +384,7 @@ def uninstall_command():
             # Filter out empty strings from the list
             packages_to_remove = [pkg for pkg in packages_to_remove if pkg.strip()]
             if packages_to_remove:
-                run_command(f"paru -Rns --noconfirm {' '.join(packages_to_remove)}", error_message="Failed to remove packages")
+                _, _, _ = run_command(f"paru -Rns --noconfirm {' '.join(packages_to_remove)}", error_message="Failed to remove packages")
             else:
                 info("No packages to remove.")
         else:
@@ -333,7 +397,7 @@ def uninstall_command():
     serein_bin_path = "/usr/local/bin/serein"
     if os.path.exists(serein_bin_path):
         info(f"Removing {serein_bin_path}. This may require sudo privileges.")
-        run_command(f"sudo rm {serein_bin_path}", error_message=f"Failed to remove {serein_bin_path}. Please remove it manually if necessary.")
+        _, _, _ = run_command(f"sudo rm {serein_bin_path}", error_message=f"Failed to remove {serein_bin_path}. Please remove it manually if necessary.")
 
     # Remove persistent directory
     if os.path.isdir(persistent_dir):
