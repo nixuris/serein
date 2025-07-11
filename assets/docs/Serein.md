@@ -1,75 +1,120 @@
-# Serein CLI Tool
+# Serein CLI Documentation
 
-The `serein` command-line tool is the central hub for managing your Serein environment. It provides a set of commands to handle updates, rollbacks, and other aspects of your configuration. This document explains how each command works under the hood.
+This document provides comprehensive information about the `serein` command-line tool, the central utility for managing your Serein Hyprland environment.
+
+## Overview
+
+The `serein` CLI is designed to simplify tasks such as updating your system and Serein configurations, managing configuration generations, enabling/disabling features, and uninstalling the environment.
 
 ## Commands
 
-### `update [stable|edge]`
+### `serein update [stable|edge] [--force|-f]`
 
-This command updates your Serein environment.
+Updates your system and Serein configurations. This command ensures your environment is up-to-date with the latest changes from the Serein repository.
 
-*   **`stable`**: Updates to the latest stable release tag. This is the recommended choice for most users.
-*   **`edge`**: Performs a shallow clone of the main branch for those who want the latest, cutting-edge features.
+*   **Arguments:**
+    *   `[stable|edge]`: Specifies the type of update.
+        *   `stable`: Updates to the latest stable release tag of the Serein repository. This is recommended for most users for a well-tested configuration.
+        *   `edge` (default): Performs a `git pull` on the `main` branch to get the very latest, cutting-edge features. Use this if you want the newest changes as soon as they are available.
 
-**Under the hood:**
+*   **Options:**
+    *   `--force`, `-f`: Forces an update even if the system detects that you are already on the latest version. This can be useful if you suspect a corrupted installation or want to re-apply configurations.
 
-1.  The script first checks if Serein is installed persistently (i.e., in `$HOME/.cache/serein`).
-2.  It then navigates to the persistent directory and updates the repository using `git pull` for the edge version or `git checkout` with the latest tag for the stable version.
-3.  Before updating, it creates a generation backup of your current configuration using `rsync`. This backup is stored in `$HOME/.cache/serein/generations`.
-4.  After the update, it re-symlinks the configuration files using the `resymlink.sh` script.
+*   **Behavior:**
+    *   Before updating, `serein` creates a backup of your current Serein configuration, saving it as a new "generation." This allows for easy rollback if any issues arise after the update.
+    *   It performs a `paru -Syu` to update your system packages.
+    *   It then pulls the latest Serein repository changes (based on `stable` or `edge`).
+    *   Finally, it re-symlinks your configurations to ensure they reflect the updated repository content.
 
-### `rollback <generation>`
+### `serein rollback [--no-confirm|-y] [--keep-backup|-k]`
 
-This command rolls back your Serein environment to a previous generation.
+Allows you to revert your Serein environment to a previous configuration "generation" or manage existing backups. This is a crucial command for disaster recovery or testing different configurations.
 
-**Under the hood:**
+*   **Interactive Mode:**
+    *   When run without specific arguments, `serein rollback` presents an interactive menu with two main choices:
+        *   **Rollback to a generation:** Allows you to select a previously saved generation (backup) to restore your Serein configurations to that state. This involves resetting the Serein repository to the commit hash associated with that generation and re-symlinking configurations.
+        *   **Delete a generation:** Allows you to remove a specific generation from the list of available backups. By default, this also deletes the associated backup files.
 
-1.  The script first checks for the specified generation in the `$HOME/.cache/serein/generations` directory.
-2.  It then reads the commit hash from the `.commit_hash` file within the generation's directory.
-3.  It unsymlinks the current configuration files.
-4.  It uses `git checkout` to revert the repository to the specified commit hash.
-5.  Finally, it re-symlinks the configuration files.
+*   **Options:**
+    *   `--no-confirm`, `-y`: Skips all confirmation prompts during the rollback or deletion process. Use with caution, as this can lead to unintended data loss.
+    *   `--keep-backup`, `-k`: When choosing to "Delete a generation," this option prevents the actual backup files from being removed from the filesystem. Only the entry in the generations list will be marked as archived.
 
-### `rollback list`
+### `serein enable <plugin>`
 
-This command lists all the available generations that you can roll back to.
+Enables a specific Serein feature or plugin. This command integrates additional functionalities into your Hyprland environment.
 
-**Under the hood:**
+*   **Arguments:**
+    *   `<plugin>`: The name of the feature or plugin to enable.
 
-This command simply lists the contents of the `$HOME/.cache/serein/generations` directory.
+*   **Currently Supported Plugins:**
+    *   `overview`: Enables the Hyprland overview plugin (hyprtasking). This command will install `hyprtasking` via `hyprpm` and reload Hyprland to activate it.
 
-### `rollback remove <gen>`
+### `serein disable <plugin>`
 
-This command removes a specific generation.
+Disables a specific Serein feature or plugin. This command removes or deactivates functionalities previously enabled.
 
-**Under the hood:**
+*   **Arguments:**
+    *   `<plugin>`: The name of the feature or plugin to disable.
 
-This command removes the specified generation's directory from `$HOME/.cache/serein/generations`.
+*   **Currently Supported Plugins:**
+    *   `overview`: Disables the Hyprland overview plugin (hyprtasking). This command will remove `hyprtasking` via `hyprpm` and reload Hyprland.
 
-### `enable overview`
+### `serein uninstall`
 
-This command enables the Hyprland overview plugin (hyprtasking).
+Removes the entire Serein environment from your system. This command is designed to clean up all Serein-related files and configurations.
 
-**Under the hood:**
+*   **Interactive Prompt:**
+    *   The command will ask for confirmation before proceeding with the uninstallation.
+    *   It will also ask if you want to remove all packages that were installed as part of the Serein environment (both minimal and full installation packages).
 
-This command uses `hyprpm` to add, enable, and reload the `hyprtasking` plugin.
+*   **Behavior:**
+    *   Unsymlinks all Serein-managed configurations from your `~/.config` directory.
+    *   Removes the `serein` executable from `/usr/local/bin`.
+    *   Deletes the Serein persistent directory (`~/.cache/serein`).
+    *   Cleans up common cache directories related to Serein (e.g., Rofi cache, `user.conf`).
+    *   If chosen, removes all packages installed by Serein using `paru -Rns`.
 
-### `disable overview`
+## Configuration Management (`serein config`)
 
-This command disables the Hyprland overview plugin.
+The `serein config` subcommand provides granular control over which Serein configurations are active in your `~/.config` directory. This is particularly useful for users who want to selectively enable or disable parts of the Serein environment.
 
-**Under the hood:**
+### `serein config` (Interactive Mode)
 
-This command uses `hyprpm` to remove and reload the `hyprtasking` plugin.
+When you run `serein config` without any subcommands, it launches an interactive interface.
 
-### `uninstall`
+*   **Behavior:**
+    *   Presents a list of all available Serein configurations (both minimal and extra).
+    *   Each configuration is displayed with its current status (enabled or disabled).
+    *   You can use the spacebar to toggle the enabled/disabled state of each configuration.
+    *   Press Enter to confirm your selections. The CLI will then automatically enable or disable the chosen configurations by creating or removing symlinks in your `~/.config` directory.
 
-This command removes the Serein environment.
+### `serein config list`
 
-**Under the hood:**
+Lists all available Serein configurations and their current status.
 
-1.  The script first asks for confirmation.
-2.  It then gives you the option to remove all the packages that were installed with Serein.
-3.  It unsymlinks all the configuration files.
-4.  It removes the `serein` command from `/usr/local/bin`.
-5.  Finally, it removes the persistent directory (`$HOME/.cache/serein`) and other related files.
+*   **Output:**
+    *   For each configuration, it shows:
+        *   Its name (e.g., `hypr`, `nvim`, `alacritty`).
+        *   Its status: `enabled` (symlinked to Serein repo), `enabled (external)` (symlinked but not to Serein repo), `unmanaged` (exists but not a symlink), `disabled` (does not exist or is not managed by Serein).
+
+### `serein config enable <config_name>`
+
+Enables a specific Serein configuration by creating a symlink.
+
+*   **Arguments:**
+    *   `<config_name>`: The name of the configuration directory to enable (e.g., `nvim`, `fish`, `ranger`).
+
+*   **Behavior:**
+    *   Creates a symbolic link from the corresponding configuration directory within the Serein repository (`~/.cache/serein/.config/<config_name>`) to your `~/.config` directory (`~/.config/<config_name>`).
+    *   If a directory or symlink already exists at the target path, it will prompt for confirmation before overwriting (unless `--no-confirm` is used).
+
+### `serein config disable <config_name>`
+
+Disables a specific Serein configuration by removing its symlink.
+
+*   **Arguments:**
+    *   `<config_name>`: The name of the configuration directory to disable.
+
+*   **Behavior:**
+    *   Removes the symbolic link from your `~/.config` directory (`~/.config/<config_name>`) if it points to the Serein repository.
+    *   It will not remove directories or symlinks that are not managed by Serein (i.e., not pointing to the Serein repository).
