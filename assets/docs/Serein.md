@@ -6,6 +6,25 @@ This document provides comprehensive information about the `serein` command-line
 
 The `serein` CLI is designed to simplify tasks such as updating your system and Serein configurations, managing configuration generations, enabling/disabling features, and uninstalling the environment.
 
+## Architecture Overview
+
+The `serein` CLI is built using Python with the `typer` library. It has been modularized for better maintainability and scalability. Here's a brief overview of the structure:
+
+*   **`serein` (executable)**: A Bash wrapper script located in the root of the repository. This script's primary role is to activate the Python virtual environment (`.venv`) and then execute the main Python script. This ensures that the CLI always runs with its required dependencies.
+
+*   **`functions/serein.py`**: The main entry point for the Python application. This script is responsible for initializing `typer` and registering all the available commands. It acts as a dispatcher, directing the user's input to the appropriate command module.
+
+*   **`functions/commands/`**: This directory is a Python package that contains the core logic for each CLI command. It is organized as follows:
+    *   `__init__.py`: An empty file that marks the `commands` directory as a Python package, allowing for modular imports.
+    *   `utils.py`: A collection of shared helper functions used by multiple commands (e.g., for printing colored output, running shell commands, checking for persistent installation).
+    *   `config.py`: Contains all the logic for the `serein config` subcommand, including listing, enabling, and disabling configurations.
+    *   `update.py`: Implements the `serein update` command.
+    *   `rollback.py`: Implements the `serein rollback` command.
+    *   `uninstall.py`: Implements the `serein uninstall` command.
+    *   `feature.py`: Implements the `serein enable` and `serein disable` commands for managing plugins.
+
+This modular design separates concerns, making it easier to debug issues, add new commands, and understand the overall structure of the application.
+
 ## Commands
 
 ### `serein update [stable|edge] [--force|-f]`
@@ -105,7 +124,7 @@ Enables a specific Serein configuration by creating a symlink.
     *   `<config_name>`: The name of the configuration directory to enable (e.g., `nvim`, `fish`, `ranger`).
 
 *   **Behavior:**
-    *   Creates a symbolic link from the corresponding configuration directory within the Serein repository (`~/.cache/serein/.config/<config_name>`) to your `~/.config` directory (`~/.config/<config_name>`).
+    *   Creates a symbolic link from the corresponding configuration directory within the Serein repository (`~/.cache/serein/config/<config_name>`) to your `~/.config` directory (`~/.config/<config_name>`).
     *   If a directory or symlink already exists at the target path, it will prompt for confirmation before overwriting (unless `--no-confirm` is used).
 
 ### `serein config disable <config_name>`
