@@ -1,5 +1,7 @@
 config/nvim/lazy-lock.json
+config/fish/fish_variables
 generations/
+generations.json
 todos.md
 .full_install
 functions/__pycache__
