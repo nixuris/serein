@@ -109,7 +109,7 @@ def config_list():
 
     info("Available Serein Configurations:")
     all_configs = resymlink.CONFIGS_MINIMAL + resymlink.CONFIGS_EXTRA
-    repo_config_dir = os.path.join(get_persistent_dir(), ".config")
+    repo_config_dir = os.path.join(get_persistent_dir(), "config")
 
     for cfg in sorted(all_configs):
         source_path = os.path.join(repo_config_dir, cfg)
@@ -176,7 +176,7 @@ def config_disable(config_name: str):
         error("Configuration management is only available for persistent installations.")
         return
 
-    repo_config_dir = os.path.join(get_persistent_dir(), ".config")
+    repo_config_dir = os.path.join(get_persistent_dir(), "config")
     source_path = os.path.join(repo_config_dir, config_name)
     target_path = os.path.join(resymlink.CONFIG_DIR, config_name)
 
@@ -205,7 +205,7 @@ def config_main(ctx: typer.Context):
         return
 
     all_configs = resymlink.CONFIGS_MINIMAL + resymlink.CONFIGS_EXTRA
-    repo_config_dir = os.path.join(get_persistent_dir(), ".config")
+    repo_config_dir = os.path.join(get_persistent_dir(), "config")
 
     # Get the current state of all configs
     current_states = {}

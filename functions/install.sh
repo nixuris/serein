@@ -148,8 +148,8 @@ run_stage_2() {
     local PKGS_EXTRA=$(cat "$REPO_ROOT/assets/packages.full")
 
     # --- Config Lists ---
-    local CONFIG_DIR="$HOME/.config"
-    local REPO_CONFIG_DIR="$REPO_ROOT/.config"
+    local CONFIG_DIR="$HOME/config"
+    local REPO_CONFIG_DIR="$REPO_ROOT/config"
 
     local CONFIGS_MINIMAL=("hypr" "waybar" "rofi" "swaylock" "swappy" "swaync")
     local CONFIGS_EXTRA=("alacritty" "fastfetch" "fish" "nvim" "ranger" "udiskie")
@@ -196,9 +196,9 @@ run_stage_2() {
             info "Symlinking config: $cfg"
             ln -s "$REPO_CONFIG_DIR/$cfg" "$CONFIG_DIR/$cfg"
         done
-        cp "$REPO_ROOT/.config/user.conf" "$HOME"
+        cp "$REPO_CONFIG_DIR/user.conf" "$HOME"
         mkdir -p "$ROFI_IMG_PATH"
-        cp "$REPO_ROOT/.config/img_path.rasi" "$ROFI_IMG_PATH"
+        cp "$REPO_CONFIG_DIR/img_path.rasi" "$ROFI_IMG_PATH"
         cp -rf "$REPO_ROOT/assets/Wallpapers" "$HOME"
         info "Symlinking serein command to /usr/local/bin..."
         sudo ln -s "$REPO_ROOT/serein" /usr/local/bin/serein
@@ -208,9 +208,9 @@ run_stage_2() {
             info "Copying config: $cfg"
             cp -r "$REPO_CONFIG_DIR/$cfg" "$CONFIG_DIR/"
         done
-        cp "$REPO_ROOT/.config/user.conf" "$HOME"
+        cp "$REPO_CONFIG_DIR/user.conf" "$HOME"
         mkdir -p "$ROFI_IMG_PATH"
-        cp "$REPO_ROOT/.config/img_path.rasi" "$ROFI_IMG_PATH"
+        cp "$REPO_CONFIG_DIR/img_path.rasi" "$ROFI_IMG_PATH"
         cp -rf "$REPO_ROOT/assets/Wallpapers" "$HOME"
         info "Skipping serein CLI installation for one-time mode."
     fi
