@@ -25,7 +25,7 @@ def get_configs_to_manage(persistent_dir):
 
 def symlink_configs(persistent_dir):
     info("Symlinking configurations...")
-    REPO_CONFIG_DIR = os.path.join(persistent_dir, ".config")
+    REPO_CONFIG_DIR = os.path.join(persistent_dir, "config")
     configs = get_configs_to_manage(persistent_dir)
     for cfg in configs:
         source_path = os.path.join(REPO_CONFIG_DIR, cfg)
@@ -54,7 +54,7 @@ def symlink_configs(persistent_dir):
 
 def unsymlink_configs(persistent_dir):
     info("Removing existing symlinks...")
-    REPO_CONFIG_DIR = os.path.join(persistent_dir, ".config") # Define here as well
+    REPO_CONFIG_DIR = os.path.join(persistent_dir, "config") # Define here as well
     configs = get_configs_to_manage(persistent_dir)
     for cfg in configs:
         target_path = os.path.join(CONFIG_DIR, cfg)
