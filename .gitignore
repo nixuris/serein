@@ -4,3 +4,4 @@ todos.md
 .full_install
 functions/__pycache__
 .venv
+functions/commands/__pycache__
