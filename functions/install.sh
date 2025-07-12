@@ -148,7 +148,7 @@ run_stage_2() {
     local PKGS_EXTRA=$(cat "$REPO_ROOT/assets/packages.full")
 
     # --- Config Lists ---
-    local CONFIG_DIR="$HOME/config"
+    local CONFIG_DIR="$HOME/.config"
     local REPO_CONFIG_DIR="$REPO_ROOT/config"
 
     local CONFIGS_MINIMAL=("hypr" "waybar" "rofi" "swaylock" "swappy" "swaync")
