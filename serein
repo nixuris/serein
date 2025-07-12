@@ -1,15 +1,29 @@
 #!/bin/bash
 
-# Get the directory where the script is located
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+# This script is designed to be symlinked to a location in the user's PATH.
+# It robustly finds its own source directory, resolving any symlinks.
+
+# Find the real directory of the script
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
+  DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
+  SOURCE="$(readlink "$SOURCE")"
+  # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
+
+# Define the path to the virtual environment's activate script
+VENV_ACTIVATE="$SCRIPT_DIR/.venv/bin/activate"
 
 # Activate the virtual environment
-if [ -f "$SCRIPT_DIR/.venv/bin/activate" ]; then
-    source "$SCRIPT_DIR/.venv/bin/activate"
+if [ -f "$VENV_ACTIVATE" ]; then
+    source "$VENV_ACTIVATE"
 else
-    echo "Error: Virtual environment not found. Please run the installation script." >&2
+    echo "Error: Virtual environment not found. Expected at: $VENV_ACTIVATE" >&2
+    echo "Please try running the installation script again." >&2
     exit 1
 fi
 
-# Run the main Python script
-python3 "$SCRIPT_DIR/functions/serein.py" "$@"
+# Run the main Python script, passing all arguments to it
+exec python3 "$SCRIPT_DIR/functions/serein.py" "$@"
