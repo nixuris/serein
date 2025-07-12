@@ -86,7 +86,7 @@ return {
     })
     end,
   },
-
+   
 -- Theme
   {
     'nvim-lualine/lualine.nvim',
@@ -111,4 +111,35 @@ return {
       }
     end,
     },
+
+    {
+  'hrsh7th/nvim-cmp',
+  dependencies = {
+    'hrsh7th/cmp-buffer',       -- words from current buffer
+    'hrsh7th/cmp-nvim-lsp',     -- LSP suggestions
+    'L3MON4D3/LuaSnip',         -- optional: snippet engine
+    'saadparwaiz1/cmp_luasnip', -- optional: LuaSnip integration
+  },
+  config = function()
+    local cmp = require'cmp'
+
+    cmp.setup({
+      snippet = {
+        expand = function(args)
+          require('luasnip').lsp_expand(args.body)
+        end,
+      },
+      mapping = cmp.mapping.preset.insert({
+        ['<Tab>'] = cmp.mapping.confirm({ select = true }), -- press Tab to confirm
+        ['<CR>']  = cmp.mapping.confirm({ select = true }), -- or Enter
+        ['<C-Space>'] = cmp.mapping.complete(),             -- manual trigger if needed
+      }),
+      sources = cmp.config.sources({
+        { name = 'nvim_lsp' },
+        { name = 'buffer' },
+      }),
+    })
+  end
+}
+
 }
