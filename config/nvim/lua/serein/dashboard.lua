@@ -36,14 +36,17 @@ dashboard.section.buttons.opts.hl = "Keyword"
 vim.api.nvim_create_autocmd("User", {
   pattern = "AlphaReady",
   callback = function()
-    vim.cmd [[ set laststatus=0 | set showtabline=0 ]]
+    vim.opt.laststatus = 0
   end,
 })
 
 vim.api.nvim_create_autocmd("BufUnload", {
-  buffer = 0,
   callback = function()
-    vim.cmd [[ set laststatus=2 | set showtabline=2 ]]
+    if vim.bo.filetype == "alpha" then
+      vim.schedule(function()
+        vim.opt.laststatus = 3 -- or 2 if you only want it for last window
+      end)
+    end
   end,
 })
 vim.keymap.set("n", "<leader>dd", "<cmd>Alpha<CR>", { desc = "Reopen [D]ash[D]oard" })

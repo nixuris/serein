@@ -1,5 +1,3 @@
-
-
 import os
 import shutil
 import subprocess
@@ -80,4 +78,3 @@ def is_persistent_install():
 def get_persistent_dir():
     """Returns the persistent directory path."""
     return os.path.join(os.path.expanduser("~"), ".cache", "serein")
-
