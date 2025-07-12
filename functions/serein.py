@@ -142,7 +142,7 @@ def config_enable(config_name: str):
         error(f"Unknown configuration: {config_name}")
         return
 
-    repo_config_dir = os.path.join(get_persistent_dir(), ".config")
+    repo_config_dir = os.path.join(get_persistent_dir(), "config")
     source_path = os.path.join(repo_config_dir, config_name)
     target_path = os.path.join(resymlink.CONFIG_DIR, config_name)
 
