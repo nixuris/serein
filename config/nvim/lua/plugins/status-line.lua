@@ -7,7 +7,7 @@ return {
     config = function()
       require("lualine").setup {
         options = {
-          theme = "nord", -- Use 'tokyonight', 'gruvbox', etc., or 'auto'
+          theme = "auto", -- Use 'tokyonight', 'gruvbox', etc., or 'auto'
           icons_enabled = true,
           section_separators = "",
           component_separators = "|",
