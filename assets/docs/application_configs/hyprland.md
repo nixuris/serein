@@ -95,7 +95,7 @@ This comprehensive Hyprland configuration provides a highly customized, efficien
 This file acts as a personalized configuration hub, extending and overriding default Hyprland behaviors, and defining additional keybinds and autostart applications.
 
 *   **Monitor Configuration:** Defines specific settings for connected monitors, including refresh rates, positions, and scaling (e.g., `eDP-1`, `Unknown-1`, `HDMI-A`).
-*   **Default Applications:** Sets preferred applications for the shell (`fish`), terminal (`alacritty`), and editor (`nvim`).
+*   **Default Applications:** Sets preferred application for the terminal (`alacritty`).
 *   **Sourcing Hyprland Configurations:** Explicitly sources all the modular Hyprland configuration files from `~/.config/hypr/hyprconfs/`, ensuring they are loaded as part of the user's setup.
 *   **Additional Keybinds:** Includes custom keybindings for launching specific applications in the terminal:
     *   `SUPER + T`: Opens Ranger file manager.

@@ -36,10 +36,6 @@ size = 13.0
 family = "JetBrains Mono Nerd Font"
 style = "SemiBold"
 
-[terminal.shell]
-args = ["-c", "fish"]
-program = "bash"
-
 [window]
 decorations = "full"
 opacity = 0.8
