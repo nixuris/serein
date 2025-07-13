@@ -20,11 +20,11 @@ return {
 
       -- 🎛️ Buttons
       dashboard.section.buttons.val = {
-        dashboard.button("e", "  New file", ":ene <BAR> startinsert <CR>"),
-        dashboard.button("t", "  > Open Ranger (Terminal)", ":terminal ranger<CR>"),
-        dashboard.button("f", "󰈞  Find file", ":Telescope find_files<CR>"),
-        dashboard.button("r", "  Recent files", ":Telescope oldfiles<CR>"),
-        dashboard.button("g", "󰱼  Grep text", ":Telescope live_grep<CR>"),
+        dashboard.button("e", "  New File", ":ene <BAR> startinsert <CR>"),
+        dashboard.button("t", "  Open File Manager (Ranger)", ":terminal ranger<CR>"),
+        dashboard.button("f", "󰈞  Find Files", ":Telescope find_files<CR>"),
+        dashboard.button("r", "  Recent Files", ":Telescope oldfiles<CR>"),
+        dashboard.button("g", "󰱼  Grep Text", ":Telescope live_grep<CR>"),
         --  dashboard.button("s", "  Restore session", ":lua require('persistence').load()<CR>"),
         dashboard.button("q", "  Quit Neovim", ":qa<CR>"),
       }
