@@ -1,6 +1,6 @@
 # Serein Documentation
 
-This directory contains the documentation for the Serein environment.
+This directory contains the documentations for the Serein environment.
 
 ## Under the Hood
 
