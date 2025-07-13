@@ -121,3 +121,4 @@ def update_command(
     resymlink.symlink_configs(persistent_dir)
 
     utils.info("Update complete. A new generation has been created.")
+    utils.clear_pycache()

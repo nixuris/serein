@@ -78,3 +78,12 @@ def is_persistent_install():
 def get_persistent_dir():
     """Returns the persistent directory path."""
     return os.path.join(os.path.expanduser("~"), ".cache", "serein")
+
+def clear_pycache():
+    """Removes all __pycache__ directories within the functions directory."""
+    functions_dir = os.path.dirname(os.path.abspath(__file__))
+    for root, dirs, files in os.walk(functions_dir):
+        if "__pycache__" in dirs:
+            pycache_dir = os.path.join(root, "__pycache__")
+            shutil.rmtree(pycache_dir)
+

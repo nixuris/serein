@@ -84,6 +84,7 @@ def rollback_command(
             resymlink.symlink_configs(persistent_dir)
 
             utils.info("Rollback complete.")
+            utils.clear_pycache()
 
         elif action == "delete":
             choices = [
