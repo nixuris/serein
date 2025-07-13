@@ -49,7 +49,7 @@ def rollback_command(
             selected_choice = inquirer.select(
                 message="Select a generation to rollback to:",
                 choices=list(choice_to_generation.keys()),
-                style=get_style({"pointer": "#673ab7 bold", "question": "#673ab7 bold"}),
+                style=get_style({"pointer": "#86afef bold", "question": "#86afef bold"}),
             ).execute()
             
             if selected_choice is None: # User escaped
@@ -94,7 +94,7 @@ def rollback_command(
             selected_choice = inquirer.select(
                 message="Select a generation to remove:",
                 choices=list(choice_to_generation.keys()),
-                style=get_style({"pointer": "#673ab7 bold", "question": "#673ab7 bold"}),
+                style=get_style({"pointer": "#86afef bold", "question": "#86afef bold"}),
             ).execute()
 
             if selected_choice is None: # User escaped
