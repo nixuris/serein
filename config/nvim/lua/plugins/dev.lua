@@ -167,4 +167,23 @@ return {
       },
     },
   },
+
+  {
+    "NvChad/nvim-colorizer.lua",
+    event = "BufReadPre",
+    config = function()
+      require("colorizer").setup {
+        filetypes = { "*" }, -- or limit to { "css", "html", "js", etc. }
+        user_default_options = {
+          mode = "virtualtext", -- ⬅️ the key setting you missed
+          virtualtext = "󱓻",
+          names = false,
+          css = true,
+          tailwind = true,
+          rgb_fn = true,
+          hsl_fn = true,
+        },
+      }
+    end,
+  },
 }

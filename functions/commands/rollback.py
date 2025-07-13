@@ -37,7 +37,7 @@ def rollback_command(
                 {"name": "Delete a generation", "value": "delete"},
             ],
             default="rollback",
-            style=get_style({"pointer": "#673ab7 bold", "question": "#673ab7 bold"}),
+            style=get_style({"pointer": "#86afef bold", "question": "#86afef bold"}),
         ).execute()
 
         if action == "rollback":

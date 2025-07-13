@@ -1,4 +1,3 @@
-
 import os
 import shutil
 import typer
@@ -134,7 +133,7 @@ def config_main(ctx: typer.Context):
             message="Select configurations to enable/disable (Space to toggle, Enter to confirm):",
             choices=choices,
             cycle=False,
-            style=get_style({"pointer": "#673ab7 bold", "question": "#673ab7 bold"}),
+            style=get_style({"pointer": "#86afef bold", "question": "#86afef bold"}),
         ).execute()
 
         if selected_configs is None: # User escaped
