@@ -4,7 +4,7 @@ This directory contains the documentations for the Serein environment.
 
 ## Under the Hood
 
-This section provides detailed documentation on the core mechanisms, architecture, and utility scripts that power the Serein environment.
+This section provides detailed documentation on the core mechanisms, architecture, and utility scripts that powers the Serein environment.
 
 *   [Serein CLI](./under_the_hood/Serein.md): A comprehensive guide to the `serein` command-line tool, its commands, arguments, and options.
 *   [Wallpaper Mechanism](./under_the_hood/Wallpaper.md): A guide to how the wallpaper selection mechanism works.
