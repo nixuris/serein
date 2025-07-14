@@ -1,4 +1,3 @@
-
 import os
 import shutil
 import sys
@@ -10,7 +9,6 @@ from InquirerPy.utils import get_style
 
 import resymlink
 from . import utils
-
 
 def rollback_command(
     no_confirm: Annotated[bool, typer.Option("--no-confirm", "-y", help="Skip confirmation prompts.")] = False,

@@ -10,18 +10,6 @@ from . import utils
 
 config_app = typer.Typer(name="config", help="Manage Serein configurations and features.")
 
-import os
-import shutil
-import sys
-import typer
-from InquirerPy import inquirer
-from InquirerPy.utils import get_style
-
-import resymlink
-from . import utils
-
-config_app = typer.Typer(name="config", help="Manage Serein configurations and features.")
-
 def enable_overview():
     """Enables the Hyprland overview feature (hyprtasking)."""
     if utils.is_overview_enabled():

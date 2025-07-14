@@ -40,12 +40,12 @@ app = typer.Typer(
 app.add_typer(config.config_app, name="config")
 
 # Add other commands
-app.command(name="uninstall")(uninstall.uninstall_command)
+app.command(name="uninstall", help="Uninstalls Serein, removing configurations and the command.")(uninstall.uninstall_command)
 
 # Conditionally add commands that only work for persistent installations
 if utils.is_persistent_install():
-    app.command(name="update")(update.update_command)
-    app.command(name="rollback")(rollback.rollback_command)
+    app.command(name="update", help="Updates Serein to the latest version.")(update.update_command)
+    app.command(name="rollback", help="Rolls back Serein to a previous generation or manages generations.")(rollback.rollback_command)
 
 if __name__ == "__main__":
     try:
