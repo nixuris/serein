@@ -33,6 +33,9 @@ return {
 
         alpha.setup(dashboard.config)
         vim.cmd "AlphaRedraw"
+        vim.schedule(function()
+          vim.cmd "stopinsert | redraw!"
+        end)
       end
 
       -- Define Serein Dashboard
@@ -75,7 +78,7 @@ return {
       })
 
       vim.api.nvim_create_autocmd("TermClose", {
-        pattern = "*ranger*",
+        pattern = { "*ranger*", "*serein*" },
         callback = function()
           vim.cmd "Alpha"
         end,
@@ -90,12 +93,16 @@ return {
           end
         end,
       })
+
       vim.api.nvim_create_autocmd("TermClose", {
-        pattern = "*serein*",
+        pattern = "*",
         callback = function()
-          vim.cmd "Alpha"
+          vim.schedule(function()
+            vim.cmd "Alpha"
+          end)
         end,
       })
+
       vim.keymap.set("n", "<leader>dd", "<cmd>Alpha<CR>", { desc = "Reopen [D]ash[D]oard" })
     end,
   },
