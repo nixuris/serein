@@ -27,7 +27,7 @@ if site_packages_path and site_packages_path not in sys.path:
     sys.path.insert(0, site_packages_path)
 # --- End dynamic .venv setup ---
 
-from commands import utils, config, update, rollback, uninstall, feature
+from commands import utils, config, update, rollback, uninstall
 
 app = typer.Typer(
     name="serein",
@@ -41,8 +41,6 @@ app.add_typer(config.config_app, name="config")
 
 # Add other commands
 app.command(name="uninstall")(uninstall.uninstall_command)
-app.command(name="disable")(feature.disable_command)
-app.command(name="enable")(feature.enable_command)
 
 # Conditionally add commands that only work for persistent installations
 if utils.is_persistent_install():

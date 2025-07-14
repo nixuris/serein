@@ -1,4 +1,5 @@
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -86,4 +87,26 @@ def clear_pycache():
         if "__pycache__" in dirs:
             pycache_dir = os.path.join(root, "__pycache__")
             shutil.rmtree(pycache_dir)
+
+def is_overview_enabled():
+    """Checks if the hyprtasking plugin for overview is enabled via hyprpm."""
+    stdout, _, returncode = run_command("hyprpm list", check_error=False)
+    if returncode != 0:
+        return False
+
+    lines = stdout.lower().splitlines()
+    in_hyprtasking_section = False
+    for line in lines:
+        # A new repository section resets the check
+        if 'repository ' in line:
+            if 'hyprtasking' in line:
+                in_hyprtasking_section = True
+            else:
+                in_hyprtasking_section = False
+        
+        if in_hyprtasking_section:
+            if 'enabled:' in line and 'true' in line:
+                return True
+                
+    return False
 

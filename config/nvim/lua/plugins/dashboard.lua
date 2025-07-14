@@ -3,44 +3,63 @@ return {
     "goolord/alpha-nvim",
     dependencies = { "nvim-tree/nvim-web-devicons" },
     event = "VimEnter",
+
     config = function()
       local alpha = require "alpha"
       local dashboard = require "alpha.themes.dashboard"
 
-      -- 🧠 Header Art
-      dashboard.section.header.val = {
-        "███████╗███████╗██████╗ ███████╗██╗███╗   ██╗",
-        "██╔════╝██╔════╝██╔══██╗██╔════╝██║████╗  ██║",
-        "███████╗█████╗  ██████╔╝█████╗  ██║██╔██╗ ██║",
-        "╚════██║██╔══╝  ██╔══██╗██╔══╝  ██║██║╚██╗██║",
-        "███████║███████╗██║  ██║███████╗██║██║ ╚████║",
-        "╚══════╝╚══════╝╚═╝  ╚═╝╚══════╝╚═╝╚═╝  ╚═══╝",
-        "               Welcome back ",
-      }
+      -- Define Main Dashboard
+      function OpenMainDashboard()
+        dashboard.section.header.val = {
+          "███████╗███████╗██████╗ ███████╗██╗███╗   ██╗",
+          "██╔════╝██╔════╝██╔══██╗██╔════╝██║████╗  ██║",
+          "███████╗█████╗  ██████╔╝█████╗  ██║██╔██╗ ██║",
+          "╚════██║██╔══╝  ██╔══██╗██╔══╝  ██║██║╚██╗██║",
+          "███████║███████╗██║  ██║███████╗██║██║ ╚████║",
+          "╚══════╝╚══════╝╚═╝  ╚═╝╚══════╝╚═╝╚═╝  ╚═══╝",
+          "               Welcome back ",
+        }
 
-      -- 🎛️ Buttons
-      dashboard.section.buttons.val = {
-        dashboard.button("g", " Git Repositories", ":OpenGitRepos <CR>"),
-        dashboard.button("e", "  New File", ":ene <BAR> startinsert <CR>"),
-        dashboard.button("t", "  Open File Manager (Ranger)", ":terminal ranger<CR>"),
-        dashboard.button("f", "󰈞  Find Files", ":Telescope find_files<CR>"),
-        dashboard.button("r", "  Recent Files", ":Telescope oldfiles<CR>"),
-        dashboard.button("g", "󰱼  Grep Text", ":Telescope live_grep<CR>"),
-        --  dashboard.button("s", "  Restore session", ":lua require('persistence').load()<CR>"),
-        dashboard.button("q", "  Quit Neovim", ":qa<CR>"),
-      }
+        dashboard.section.buttons.val = {
+          dashboard.button("s", "󱙖  Serein CLI Hub", ":lua OpenSereinDashboard()<CR>"),
+          dashboard.button("g", " Git Repositories", ":OpenGitRepos <CR>"),
+          dashboard.button("e", "  New File", ":ene <BAR> startinsert <CR>"),
+          dashboard.button("t", "  Open File Manager (Ranger)", ":terminal ranger<CR>"),
+          dashboard.button("ff", "󰈞  Find Files", ":Telescope find_files<CR>"),
+          dashboard.button("fr", "  Recent Files", ":Telescope oldfiles<CR>"),
+          dashboard.button("fg", "󰱼  Grep Text", ":Telescope live_grep<CR>"),
+          dashboard.button("q", "  Quit Neovim", ":qa<CR>"),
+        }
 
-      -- 🐾 Footer Info
-      dashboard.section.footer.val = function()
-        local stats = require("lazy").stats()
-        return "󰚩  " .. stats.loaded .. " plugins loaded in " .. (math.floor(stats.startuptime * 100) / 100) .. "ms"
+        alpha.setup(dashboard.config)
+        vim.cmd "AlphaRedraw"
       end
 
-      dashboard.section.footer.opts.hl = "Comment"
-      dashboard.section.header.opts.hl = "Function"
-      dashboard.section.buttons.opts.hl = "Keyword"
+      -- Define Serein Dashboard
+      function OpenSereinDashboard()
+        dashboard.section.header.val = {
+          "Serein CLI Hub",
+          "Manage your Hyprland system",
+          " ",
+        }
 
-      -- 🧼 Hide tabline/statusline on dashboard
+        dashboard.section.buttons.val = {
+          dashboard.button("❖", "󰚰  Update (Edge)", ":terminal serein update edge<CR>"),
+          dashboard.button("❖", "󰚰  Update (Stable)", ":terminal serein update stable<CR>"),
+          dashboard.button("❖", "󰑓  Rollback", ":terminal serein rollback<CR>"),
+          dashboard.button("❖", "  Config Manager", ":terminal serein config<CR>"),
+          dashboard.button("❖", "󰆴  Uninstall Serein", ":terminal serein uninstall<CR>"),
+          dashboard.button("❖", "󰁯  Back", ":lua OpenMainDashboard()<CR>"),
+        }
+
+        alpha.setup(dashboard.config)
+        vim.cmd "AlphaRedraw"
+      end
+
+      -- Initialize Main Dashboard
+      OpenMainDashboard()
+
+      -- Autocmds
       vim.api.nvim_create_autocmd("User", {
         pattern = "AlphaReady",
         callback = function()
@@ -49,11 +68,12 @@ return {
       })
 
       vim.api.nvim_create_autocmd("TermOpen", {
-        pattern = "*ranger*",
+        pattern = { "*ranger*", "*serein*" },
         callback = function()
           vim.cmd "startinsert"
         end,
       })
+
       vim.api.nvim_create_autocmd("TermClose", {
         pattern = "*ranger*",
         callback = function()
@@ -65,13 +85,18 @@ return {
         callback = function()
           if vim.bo.filetype == "alpha" then
             vim.schedule(function()
-              vim.opt.laststatus = 3 -- or 2 if you only want it for last window
+              vim.opt.laststatus = 3
             end)
           end
         end,
       })
+      vim.api.nvim_create_autocmd("TermClose", {
+        pattern = "*serein*",
+        callback = function()
+          vim.cmd "Alpha"
+        end,
+      })
       vim.keymap.set("n", "<leader>dd", "<cmd>Alpha<CR>", { desc = "Reopen [D]ash[D]oard" })
-      alpha.setup(dashboard.config)
     end,
   },
 }
