@@ -48,4 +48,8 @@ if utils.is_persistent_install():
     app.command(name="rollback")(rollback.rollback_command)
 
 if __name__ == "__main__":
-    app(prog_name="serein")
+    try:
+        app(prog_name="serein")
+    except KeyboardInterrupt:
+        utils.info("Operation cancelled by user.")
+        sys.exit(0)

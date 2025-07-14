@@ -42,30 +42,22 @@ The `serein` command-line tool is the central hub for managing your Serein envir
     *   Provides an interactive prompt to choose between rolling back or deleting a generation.
     *   `--no-confirm`, `-y`: Skips confirmation prompts for actions.
     *   `--keep-backup`, `-k`: When deleting a generation, keeps the backup files instead of removing them.
-*   `serein enable <plugin>`:
-    *   Enables a specific Serein feature or plugin.
-    *   Currently supports:
-        *   `overview`: Enables the Hyprland overview plugin (hyprtasking).
-*   `serein disable <plugin>`:
-    *   Disables a specific Serein feature or plugin.
-    *   Currently supports:
-        *   `overview`: Disables the Hyprland overview plugin (hyprtasking).
 *   `serein uninstall`:
     *   Removes the Serein environment, including all configurations and the `serein` command itself.
     *   Optionally removes all packages installed by Serein.
 
 ## Configuration Management (`serein config`)
 
-The `serein config` subcommand provides granular control over your Serein configurations.
+The `serein config` subcommand provides granular control over your Serein configurations and features.
 
 *   `serein config`:
-    *   Runs an interactive mode, allowing you to select configurations to enable or disable using a checkbox interface.
+    *   Runs an interactive mode, allowing you to enable or disable configurations (symlinks) and features (e.g., overview) using a checkbox interface.
 *   `serein config list`:
-    *   Lists all available Serein configurations and their current status (enabled, unmanaged, disabled).
-*   `serein config enable <config_name>`:
-    *   Enables a specific configuration by creating a symlink from the Serein repository to your `~/.config` directory.
-*   `serein config disable <config_name>`:
-    *   Disables a specific configuration by removing its symlink from your `~/.config` directory.
+    *   Lists all available Serein configurations and features, showing their current status (enabled, unmanaged, disabled).
+*   `serein config enable <item_name>`:
+    *   Enables a specific configuration (by creating a symlink) or a feature.
+*   `serein config disable <item_name>`:
+    *   Disables a specific configuration (by removing its symlink) or a feature.
 
 For more detailed information and examples, please refer to the dedicated Serein CLI documentation.
 

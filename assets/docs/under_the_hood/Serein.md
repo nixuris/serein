@@ -17,11 +17,10 @@ The `serein` CLI is built using Python with the `typer` library. It has been mod
 *   **`functions/commands/`**: This directory is a Python package that contains the core logic for each CLI command. It is organized as follows:
     *   `__init__.py`: An empty file that marks the `commands` directory as a Python package, allowing for modular imports.
     *   `utils.py`: A collection of shared helper functions used by multiple commands (e.g., for printing colored output, running shell commands, checking for persistent installation).
-    *   `config.py`: Contains all the logic for the `serein config` subcommand, including listing, enabling, and disabling configurations.
+    *   `config.py`: Contains all the logic for the `serein config` subcommand, including listing, enabling, and disabling configurations and features.
     *   `update.py`: Implements the `serein update` command.
     *   `rollback.py`: Implements the `serein rollback` command.
     *   `uninstall.py`: Implements the `serein uninstall` command.
-    *   `feature.py`: Implements the `serein enable` and `serein disable` commands for managing plugins.
 
 This modular design separates concerns, making it easier to debug issues, add new commands, and understand the overall structure of the application.
 
@@ -58,82 +57,45 @@ Allows you to revert your Serein environment to a previous configuration "genera
     *   `--no-confirm`, `-y`: Skips all confirmation prompts during the rollback or deletion process. Use with caution, as this can lead to unintended data loss.
     *   `--keep-backup`, `-k`: When choosing to "Delete a generation," this option prevents the actual backup files from being removed from the filesystem. Only the entry in the generations list will be marked as archived.
 
-### `serein enable <plugin>`
-
-Enables a specific Serein feature or plugin. This command integrates additional functionalities into your Hyprland environment.
-
-*   **Arguments:**
-    *   `<plugin>`: The name of the feature or plugin to enable.
-
-*   **Currently Supported Plugins:**
-    *   `overview`: Enables the Hyprland overview plugin (hyprtasking). This command will install `hyprtasking` via `hyprpm` and reload Hyprland to activate it.
-
-### `serein disable <plugin>`
-
-Disables a specific Serein feature or plugin. This command removes or deactivates functionalities previously enabled.
-
-*   **Arguments:**
-    *   `<plugin>`: The name of the feature or plugin to disable.
-
-*   **Currently Supported Plugins:**
-    *   `overview`: Disables the Hyprland overview plugin (hyprtasking). This command will remove `hyprtasking` via `hyprpm` and reload Hyprland.
-
-### `serein uninstall`
-
-Removes the entire Serein environment from your system. This command is designed to clean up all Serein-related files and configurations.
-
-*   **Interactive Prompt:**
-    *   The command will ask for confirmation before proceeding with the uninstallation.
-    *   It will also ask if you want to remove all packages that were installed as part of the Serein environment (both minimal and full installation packages).
-
-*   **Behavior:**
-    *   Unsymlinks all Serein-managed configurations from your `~/.config` directory.
-    *   Removes the `serein` executable from `/usr/local/bin`.
-    *   Deletes the Serein persistent directory (`~/.cache/serein`).
-    *   Cleans up common cache directories related to Serein (e.g., Rofi cache, `user.conf`).
-    *   If chosen, removes all packages installed by Serein using `paru -Rns`.
-
 ## Configuration Management (`serein config`)
 
-The `serein config` subcommand provides granular control over which Serein configurations are active in your `~/.config` directory. This is particularly useful for users who want to selectively enable or disable parts of the Serein environment.
+The `serein config` subcommand provides granular control over which Serein configurations and features are active.
 
 ### `serein config` (Interactive Mode)
 
 When you run `serein config` without any subcommands, it launches an interactive interface.
 
 *   **Behavior:**
-    *   Presents a list of all available Serein configurations (both minimal and extra).
-    *   Each configuration is displayed with its current status (enabled or disabled).
-    *   You can use the spacebar to toggle the enabled/disabled state of each configuration.
-    *   Press Enter to confirm your selections. The CLI will then automatically enable or disable the chosen configurations by creating or removing symlinks in your `~/.config` directory.
+    *   Presents a list of all available Serein configurations (e.g., `hypr`, `nvim`) and features (e.g., `overview`).
+    *   Each item is displayed with its current status (enabled or disabled).
+    *   You can use the spacebar to toggle the enabled/disabled state of each item.
+    *   Press Enter to confirm your selections. The CLI will then automatically enable or disable the chosen configurations/features.
 
 ### `serein config list`
 
-Lists all available Serein configurations and their current status.
+Lists all available Serein configurations and features and their current status.
 
 *   **Output:**
-    *   For each configuration, it shows:
-        *   Its name (e.g., `hypr`, `nvim`, `alacritty`).
-        *   Its status: `enabled` (symlinked to Serein repo), `enabled (external)` (symlinked but not to Serein repo), `unmanaged` (exists but not a symlink), `disabled` (does not exist or is not managed by Serein).
+    *   For each item, it shows its name and its status: `enabled`, `enabled (external)`, `unmanaged`, or `disabled`.
 
-### `serein config enable <config_name>`
+### `serein config enable <item_name>`
 
-Enables a specific Serein configuration by creating a symlink.
+Enables a specific Serein configuration or feature.
 
 *   **Arguments:**
-    *   `<config_name>`: The name of the configuration directory to enable (e.g., `nvim`, `fish`, `ranger`).
+    *   `<item_name>`: The name of the configuration or feature to enable (e.g., `nvim`, `overview`).
 
 *   **Behavior:**
-    *   Creates a symbolic link from the corresponding configuration directory within the Serein repository (`~/.cache/serein/config/<config_name>`) to your `~/.config` directory (`~/.config/<config_name>`).
-    *   If a directory or symlink already exists at the target path, it will prompt for confirmation before overwriting (unless `--no-confirm` is used).
+    *   For a configuration, it creates a symbolic link from the Serein repository to your `~/.config` directory.
+    *   For a feature like `overview`, it will install and enable the necessary plugins (e.g., `hyprtasking`).
 
-### `serein config disable <config_name>`
+### `serein config disable <item_name>`
 
-Disables a specific Serein configuration by removing its symlink.
+Disables a specific Serein configuration or feature.
 
 *   **Arguments:**
-    *   `<config_name>`: The name of the configuration directory to disable.
+    *   `<item_name>`: The name of the configuration or feature to disable.
 
 *   **Behavior:**
-    *   Removes the symbolic link from your `~/.config` directory (`~/.config/<config_name>`) if it points to the Serein repository.
-    *   It will not remove directories or symlinks that are not managed by Serein (i.e., not pointing to the Serein repository).
+    *   For a configuration, it removes the symbolic link from your `~/.config` directory.
+    *   For a feature like `overview`, it will disable the corresponding plugin.
