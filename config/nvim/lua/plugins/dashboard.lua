@@ -77,13 +77,6 @@ return {
         end,
       })
 
-      vim.api.nvim_create_autocmd("TermClose", {
-        pattern = { "*ranger*", "*serein*" },
-        callback = function()
-          vim.cmd "Alpha"
-        end,
-      })
-
       vim.api.nvim_create_autocmd("BufUnload", {
         callback = function()
           if vim.bo.filetype == "alpha" then
@@ -95,7 +88,7 @@ return {
       })
 
       vim.api.nvim_create_autocmd("TermClose", {
-        pattern = "*ranger*",
+        pattern = { "*ranger*", "*serein*" },
         callback = function()
           vim.defer_fn(function()
             vim.cmd "Alpha"
