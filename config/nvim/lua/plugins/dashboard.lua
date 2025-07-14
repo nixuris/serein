@@ -88,13 +88,23 @@ return {
       })
 
       vim.api.nvim_create_autocmd("TermClose", {
-        pattern = { "*ranger*", "*serein*" },
+        pattern = "*ranger*",
         callback = function()
           vim.defer_fn(function()
             vim.cmd "Alpha"
-          end, 50) -- slight delay to avoid race conditions
+          end, 50)
         end,
       })
+
+      vim.api.nvim_create_autocmd("TermClose", {
+        pattern = "*serein*",
+        callback = function()
+          vim.defer_fn(function()
+            vim.cmd "Alpha"
+          end, 50)
+        end,
+      })
+
       vim.api.nvim_create_autocmd("TermClose", {
         pattern = "*",
         callback = function()
