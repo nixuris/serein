@@ -227,7 +227,8 @@ run_stage_2() {
         info "--- Post-Installation Best Practices ---"
         echo " - Do NOT manually modify files in ~/.cache/serein. Use the 'serein' command to manage your environment."
         echo " - To remove rollback backups, use 'serein rollback' instead of 'rm -rf'."
-        echo " - Updates by 'serein update' will not be '~/user.conf' and '~/Wallpapers', please do it manually for now."
+        echo " - Updates by 'serein update' will not be applied on '~/user.conf' and '~/Wallpapers', please do it manually for now."
+        echo " - Please use 'serein config' or Serein CLI Hub in neovim config to enable overview for navigation."
     fi
     echo " - Please make sure you put wallpapers in the ~/Wallpapers directory."
     echo " - The hyprland user config will be put at ~/user.conf, edit it according to the wiki or example configurations."    
