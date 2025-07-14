@@ -20,6 +20,7 @@ return {
 
       -- 🎛️ Buttons
       dashboard.section.buttons.val = {
+        dashboard.button("g", " Git Repositories", ":OpenGitRepos <CR>"),
         dashboard.button("e", "  New File", ":ene <BAR> startinsert <CR>"),
         dashboard.button("t", "  Open File Manager (Ranger)", ":terminal ranger<CR>"),
         dashboard.button("f", "󰈞  Find Files", ":Telescope find_files<CR>"),
