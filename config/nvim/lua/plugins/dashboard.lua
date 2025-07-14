@@ -22,7 +22,7 @@ return {
 
         dashboard.section.buttons.val = {
           dashboard.button("❖", "󱙖  Serein CLI Hub", ":lua OpenSereinDashboard()<CR>"),
-          dashboard.button("❖", " Git Repositories", ":OpenGitRepos <CR>"),
+          dashboard.button("❖", "  Git Repositories", ":OpenGitRepos <CR>"),
           dashboard.button("❖", "  Open File Manager (Ranger)", ":terminal ranger<CR>"),
           dashboard.button("❖", "󰈞  Find Files", ":Telescope find_files<CR>"),
           dashboard.button("❖", "  Recent Files", ":Telescope oldfiles<CR>"),
