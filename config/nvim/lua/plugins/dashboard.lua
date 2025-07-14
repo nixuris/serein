@@ -22,9 +22,9 @@ return {
 
         dashboard.section.buttons.val = {
           dashboard.button("s", "󱙖  Serein CLI Hub", ":lua OpenSereinDashboard()<CR>"),
-          dashboard.button("g", " Git Repositories", ":OpenGitRepos <CR>"),
+          dashboard.button("g", " Git Repositories", ":OpenGitRepos<CR>"),
           dashboard.button("e", "  New File", ":ene <BAR> startinsert <CR>"),
-          dashboard.button("t", "  Open File Manager (Ranger)", ":terminal ranger<CR>"),
+          dashboard.button("t", "  Open File Manager (Ranger)", ":terminal ranger ; echo 'SER_TERMINAL_DONE'<CR>"),
           dashboard.button("ff", "󰈞  Find Files", ":Telescope find_files<CR>"),
           dashboard.button("fr", "  Recent Files", ":Telescope oldfiles<CR>"),
           dashboard.button("fg", "󰱼  Grep Text", ":Telescope live_grep<CR>"),
@@ -47,11 +47,19 @@ return {
         }
 
         dashboard.section.buttons.val = {
-          dashboard.button("❖", "󰚰  Update (Edge)", ":terminal serein update edge<CR>"),
-          dashboard.button("❖", "󰚰  Update (Stable)", ":terminal serein update stable<CR>"),
-          dashboard.button("❖", "󰑓  Rollback", ":terminal serein rollback<CR>"),
-          dashboard.button("❖", "  Config Manager", ":terminal serein config<CR>"),
-          dashboard.button("❖", "󰆴  Uninstall Serein", ":terminal serein uninstall<CR>"),
+          dashboard.button("❖", "󰚰  Update (Edge)", ":terminal serein update edge ; echo 'SER_TERMINAL_DONE'<CR>"),
+          dashboard.button(
+            "❖",
+            "󰚰  Update (Stable)",
+            ":terminal serein update stable ; echo 'SER_TERMINAL_DONE'<CR>"
+          ),
+          dashboard.button("❖", "󰑓  Rollback", ":terminal serein rollback ; echo 'SER_TERMINAL_DONE'<CR>"),
+          dashboard.button("❖", "  Config Manager", ":terminal serein config ; echo 'SER_TERMINAL_DONE'<CR>"),
+          dashboard.button(
+            "❖",
+            "󰆴  Uninstall Serein",
+            ":terminal serein uninstall ; echo 'SER_TERMINAL_DONE'<CR>"
+          ),
           dashboard.button("❖", "󰁯  Back", ":lua OpenMainDashboard()<CR>"),
         }
 
@@ -88,6 +96,20 @@ return {
       })
 
       vim.api.nvim_create_autocmd("TermClose", {
+        pattern = "*",
+        callback = function(args)
+          local bufnr = args.buf
+          local lines = vim.api.nvim_buf_get_lines(bufnr, -5, -1, false)
+          local output = table.concat(lines, "\n")
+
+          if output:find "SER_TERMINAL_DONE" then
+            vim.schedule(function()
+              vim.cmd "Alpha"
+            end)
+          end
+        end,
+      })
+      vim.api.nvim_create_autocmd("TermClose", {
         pattern = "*ranger*",
         callback = function()
           vim.defer_fn(function()
@@ -102,15 +124,6 @@ return {
           vim.defer_fn(function()
             vim.cmd "Alpha"
           end, 50)
-        end,
-      })
-
-      vim.api.nvim_create_autocmd("TermClose", {
-        pattern = "*",
-        callback = function()
-          vim.schedule(function()
-            vim.cmd "Alpha"
-          end)
         end,
       })
 
