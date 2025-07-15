@@ -47,6 +47,7 @@ return {
         }
 
         dashboard.section.buttons.val = {
+          dashboard.button("❖", "  Serein Package Manager", ":terminal serein pkg<CR>"),
           dashboard.button("❖", "󰚰  Update (Edge)", ":terminal serein update edge<CR>"),
           dashboard.button("❖", "󰚰  Update (Stable)", ":terminal serein update stable<CR>"),
           dashboard.button("❖", "󰑓  Rollback", ":terminal serein rollback<CR>"),

@@ -21,6 +21,7 @@ The `serein` CLI is built using Python with the `typer` library. It has been mod
     *   `update.py`: Implements the `serein update` command.
     *   `rollback.py`: Implements the `serein rollback` command.
     *   `uninstall.py`: Implements the `serein uninstall` command.
+    *   `pkg.py`: Implements the `serein pkg` command for managing system packages.
 
 This modular design separates concerns, making it easier to debug issues, add new commands, and understand the overall structure of the application.
 
@@ -56,6 +57,22 @@ Allows you to revert your Serein environment to a previous configuration "genera
 *   **Options:**
     *   `--no-confirm`, `-y`: Skips all confirmation prompts during the rollback or deletion process. Use with caution, as this can lead to unintended data loss.
     *   `--keep-backup`, `-k`: When choosing to "Delete a generation," this option prevents the actual backup files from being removed from the filesystem. Only the entry in the generations list will be marked as archived.
+
+### `serein pkg`
+
+The `serein pkg` command is a convenient wrapper around the `paru` package manager, allowing you to update, install, and remove packages directly through the Serein CLI.
+
+*   **`serein pkg` (Interactive Mode):**
+    *   When run without any subcommands, it starts an interactive session where you can choose to update, install, or remove packages.
+
+*   **`serein pkg update`:**
+    *   Updates all system packages using `paru -Syu`.
+
+*   **`serein pkg install <packages...>`:**
+    *   Installs one or more packages using `paru -S`.
+
+*   **`serein pkg remove <packages...>`:**
+    *   Removes one or more packages using `paru -Rns`.
 
 ## Configuration Management (`serein config`)
 

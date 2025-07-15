@@ -47,22 +47,43 @@ def write_generations(generations_data):
     generations_path = get_generations_path()
     with open(generations_path, "w") as f:
         json.dump({"generations": generations_data}, f, indent=4)
+import typer
+from rich.console import Console
+from rich.style import Style
+
+console = Console()
+
+
 def info(message):
     """Displays an informational message."""
-    typer.echo(typer.style(f"[INFO] {message}", fg=typer.colors.BLUE, bold=True))
+    style = Style(color="#86afef", bold=True)
+    console.print(f"[INFO] {message}", style=style)
+
 
 def error(message):
     """Displays an error message and exits the script."""
-    typer.echo(typer.style(f"[ERROR] {message}", fg=typer.colors.RED, bold=True), err=True)
+    style = Style(color="red", bold=True)
+    console.print(f"[ERROR] {message}", style=style, stderr=True)
     sys.exit(1)
 
 def run_command(command, cwd=None, check_error=True, error_message="Command failed", capture_output=True):
     """Runs a shell command and handles errors. Returns stdout, stderr, and exit_code."""
     try:
+        # If we don't capture output, it will be streamed to the terminal directly.
+        # In that case, result.stdout and result.stderr will be None.
         result = subprocess.run(command, cwd=cwd, check=False, shell=True, capture_output=capture_output, text=True)
+        
+        stdout_val = result.stdout.strip() if result.stdout else ""
+        stderr_val = result.stderr.strip() if result.stderr else ""
+
         if check_error and result.returncode != 0:
-            error(f"{error_message} (Exit Code: {result.returncode}):\nStdout: {result.stdout.strip()}\nStderr: {result.stderr.strip()}")
-        return result.stdout.strip(), result.stderr.strip(), result.returncode
+            # Don't print stdout/stderr if it was already streamed live
+            if capture_output:
+                error(f"{error_message} (Exit Code: {result.returncode}):\nStdout: {stdout_val}\nStderr: {stderr_val}")
+            else:
+                error(f"{error_message} (Exit Code: {result.returncode})")
+
+        return stdout_val, stderr_val, result.returncode
     except FileNotFoundError:
         error(f"Command not found: {command.split()[0]}")
     except Exception as e:
@@ -109,4 +130,15 @@ def is_overview_enabled():
                 return True
                 
     return False
+
+def paru_install(packages):
+    command = f"paru -S --noconfirm {' '.join(packages)}"
+    run_command(command, capture_output=False)
+
+def paru_remove(packages):
+    command = f"paru -Rns --noconfirm {' '.join(packages)}"
+    run_command(command, capture_output=False)
+
+def paru_update():
+    run_command("paru -Syu --noconfirm", capture_output=False)
 

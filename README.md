@@ -42,6 +42,12 @@ The `serein` command-line tool is the central hub for managing your Serein envir
     *   Provides an interactive prompt to choose between rolling back or deleting a generation.
     *   `--no-confirm`, `-y`: Skips confirmation prompts for actions.
     *   `--keep-backup`, `-k`: When deleting a generation, keeps the backup files instead of removing them.
+*   `serein pkg`:
+    *   Manages system packages using `paru`.
+    *   `serein pkg update`: Updates all system packages.
+    *   `serein pkg install <packages...>`: Installs new packages.
+    *   `serein pkg remove <packages...>`: Removes existing packages.
+    *   Running `serein pkg` without arguments starts an interactive mode.
 *   `serein uninstall`:
     *   Removes the Serein environment, including all configurations and the `serein` command itself.
     *   Optionally removes all packages installed by Serein.
