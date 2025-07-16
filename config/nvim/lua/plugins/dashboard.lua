@@ -25,9 +25,9 @@ return {
           dashboard.button("❖", "  Git Repositories", ":OpenGitRepos <CR>"),
           dashboard.button("❖", "  Open File Manager (Ranger)", ":terminal ranger<CR>"),
           dashboard.button("❖", "󰈞  Find Files", ":Telescope find_files<CR>"),
-          dashboard.button("❖", "  Recent Files", ":Telescope oldfiles<CR>"),
-          dashboard.button("❖", "󰱼  Grep Text", ":Telescope live_grep<CR>"),
           dashboard.button("❖", "  New File", ":ene <BAR> startinsert <CR>"),
+          dashboard.button("❖", "󰱼  Grep Text", ":Telescope live_grep<CR>"),
+          dashboard.button("❖", "  Recent Files", ":Telescope oldfiles<CR>"),
           dashboard.button("❖", "  Quit Neovim", ":qa<CR>"),
         }
 
