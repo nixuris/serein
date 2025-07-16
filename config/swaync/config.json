@@ -53,8 +53,6 @@
   "widgets": [
     "label",
     "mpris",
-    "volume",
-    "backlight",
     "title",
     "dnd",
     "notifications"
